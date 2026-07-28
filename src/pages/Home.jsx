@@ -269,7 +269,7 @@ function Home() {
 
         </section>
 
-        <Tables />
+       <Tables categories={report?.categories || []} />
 
       </div>
 

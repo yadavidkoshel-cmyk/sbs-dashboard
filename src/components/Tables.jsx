@@ -43,6 +43,47 @@ const icons = {
   circle: FaCircle,
 };
 
+function normalizeName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function getLiveData(template, categories = []) {
+  return template.map((item) => {
+    const liveItem = categories.find((category) => {
+      const liveName =
+        category?.name ||
+        category?.category ||
+        "";
+
+      return (
+        normalizeName(liveName) ===
+        normalizeName(item.name)
+      );
+    });
+
+    return {
+      ...item,
+
+      hit: Number(
+        liveItem?.hit ??
+        liveItem?.targetsHit ??
+        liveItem?.targets_hit ??
+        0
+      ),
+
+      destroyed: Number(
+        liveItem?.destroyed ??
+        liveItem?.targetsDestroyed ??
+        liveItem?.targets_destroyed ??
+        0
+      ),
+    };
+  });
+}
+
 function ReportTable({ data }) {
   return (
     <div className="report-table">
@@ -52,12 +93,14 @@ function ReportTable({ data }) {
         </div>
 
         <div>УРАЖЕНО</div>
+
         <div>ЗНИЩЕНО</div>
       </div>
 
       <div className="report-table-body">
         {data.map((item, index) => {
-          const Icon = icons[item.icon] || FaCircle;
+          const Icon =
+            icons[item.icon] || FaCircle;
 
           return (
             <div
@@ -73,9 +116,7 @@ function ReportTable({ data }) {
                   <Icon />
                 </div>
 
-                <span>
-                  {item.name}
-                </span>
+                <span>{item.name}</span>
 
                 {item.accent && (
                   <strong className="report-accent">
@@ -100,7 +141,9 @@ function ReportTable({ data }) {
 
               <div
                 className={`report-number ${
-                  item.destroyed === 0 ? "zero" : ""
+                  item.destroyed === 0
+                    ? "zero"
+                    : ""
                 }`}
               >
                 {item.secret ? (
@@ -119,12 +162,23 @@ function ReportTable({ data }) {
   );
 }
 
-function Tables() {
+function Tables({ categories = [] }) {
+  const liveLeftTable = getLiveData(
+    leftTable,
+    categories
+  );
+
+  const liveRightTable = getLiveData(
+    rightTable,
+    categories
+  );
+
   return (
     <section className="combat-statistics">
       <div className="tables-layout">
-        <ReportTable data={leftTable} />
-        <ReportTable data={rightTable} />
+        <ReportTable data={liveLeftTable} />
+
+        <ReportTable data={liveRightTable} />
       </div>
     </section>
   );
