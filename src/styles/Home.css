@@ -676,9 +676,8 @@ body {
   }
 
   .stat-part {
-    padding: 4px 6px;
-  }
-}}
+  padding: 4px 6px;
+}
 
 .operation-description {
   margin-top: 4px;
@@ -686,5 +685,5 @@ body {
   font-size: 11px;
   font-weight: 500;
   line-height: 1.3;
-}
+  }
 }

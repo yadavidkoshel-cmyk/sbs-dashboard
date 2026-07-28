@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export const leftTable = [
   {
     icon: "user",
@@ -22,7 +21,6 @@ export const leftTable = [
   {
     icon: "shield",
     name: "ЗРК, ЗГРК",
-    accent: "ППОПад",
     hit: 0,
     destroyed: 0,
   },
@@ -35,28 +33,24 @@ export const leftTable = [
   {
     icon: "ship",
     name: "Флот",
-    accent: "МоЛоЧКа",
     hit: 1,
     destroyed: 0,
   },
   {
     icon: "energy",
     name: "Енерговузли",
-    accent: "Кримський рубильник off",
     hit: 1,
     destroyed: 0,
   },
   {
     icon: "truck",
     name: "РЛС, РЕР та зв'язок (комплекси)",
-    accent: "ППОПад",
     hit: 0,
     destroyed: 0,
   },
   {
     icon: "truck",
     name: "РЕБ (комплекс)",
-    accent: "ППОПад",
     hit: 0,
     destroyed: 0,
   },
@@ -138,7 +132,8 @@ export const rightTable = [
   {
     icon: "building",
     name: "Стратегічна інфраструктура",
-    secret: true,
+    hit: 0,
+    destroyed: 0,
   },
   {
     icon: "building",
@@ -176,183 +171,4 @@ export const rightTable = [
     hit: 0,
     destroyed: 0,
   },
-=======
-export const leftTable = [
-  {
-    icon: "user",
-    name: "ОС РОВ",
-    hit: 1,
-    destroyed: 0,
-    highlight: true,
-  },
-  {
-    icon: "marker",
-    name: "Точки вильоту дронів",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "antenna",
-    name: "Антени",
-    hit: 1,
-    destroyed: 0,
-  },
-  {
-    icon: "shield",
-    name: "ЗРК, ЗГРК",
-    accent: "ППОПад",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "plane",
-    name: "Літаки та гелікоптери",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "ship",
-    name: "Флот",
-    accent: "МоЛоЧКа",
-    hit: 1,
-    destroyed: 0,
-  },
-  {
-    icon: "energy",
-    name: "Енерговузли",
-    accent: "Кримський рубильник off",
-    hit: 1,
-    destroyed: 0,
-  },
-  {
-    icon: "truck",
-    name: "РЛС, РЕР та зв'язок (комплекси)",
-    accent: "ППОПад",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "truck",
-    name: "РЕБ (комплекс)",
-    accent: "ППОПад",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "satellite",
-    name: "РЛС та РЕБ (авто + портативні)",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "wing",
-    name: "Ворожі крила",
-    hit: 8,
-    destroyed: 6,
-  },
-  {
-    icon: "plane",
-    name: "Шахеди та Гербери",
-    hit: 1,
-    destroyed: 1,
-  },
-  {
-    icon: "shield",
-    name: "Танки",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "truck",
-    name: "ББМ, БМП, БТР",
-    hit: 0,
-    destroyed: 0,
-  },
-];
-
-export const rightTable = [
-  {
-    icon: "target",
-    name: "Гармати, гаубиці",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "shield",
-    name: "САУ",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "target",
-    name: "Міномети",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "truck",
-    name: "РСЗВ",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "truck",
-    name: "ЛАТ, ВАТ, спец. та інж. техніка, паливозапр.",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "motorcycle",
-    name: "Мотоцикли та військові баггі",
-    hit: 1,
-    destroyed: 1,
-  },
-  {
-    icon: "warehouse",
-    name: "Склади",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "building",
-    name: "Стратегічна інфраструктура",
-    secret: true,
-  },
-  {
-    icon: "building",
-    name: "Тактична інфраструктура",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "shield",
-    name: "Укриття та бліндажі",
-    hit: 41,
-    destroyed: 3,
-  },
-  {
-    icon: "camera",
-    name: "Мережеве обладнання та камери",
-    hit: 1,
-    destroyed: 0,
-  },
-  {
-    icon: "satellite",
-    name: "Ворожі коптери",
-    hit: 4,
-    destroyed: 3,
-  },
-  {
-    icon: "shield",
-    name: "Ворожі НРК",
-    hit: 0,
-    destroyed: 0,
-  },
-  {
-    icon: "circle",
-    name: "Інше",
-    hit: 0,
-    destroyed: 0,
-  },
->>>>>>> 66b00f5eacf12c02d064900196c5788d8e62295f
 ];

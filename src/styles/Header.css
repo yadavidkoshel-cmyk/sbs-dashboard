@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-/* =========================================
-   RUNNING UNIT STRIP
-========================================= */
-
 .unit-ticker {
   width: 100%;
   height: 42px;
-
   overflow: hidden;
   position: relative;
 
@@ -24,37 +18,30 @@
 .unit-ticker::before,
 .unit-ticker::after {
   content: "";
-
   position: absolute;
   top: 0;
-
   width: 100px;
   height: 100%;
-
   z-index: 4;
   pointer-events: none;
 }
 
 .unit-ticker::before {
   left: 0;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 1),
-      rgba(0, 0, 0, 0)
-    );
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  );
 }
 
 .unit-ticker::after {
   right: 0;
-
-  background:
-    linear-gradient(
-      270deg,
-      rgba(0, 0, 0, 1),
-      rgba(0, 0, 0, 0)
-    );
+  background: linear-gradient(
+    270deg,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  );
 }
 
 .ticker-track {
@@ -65,7 +52,6 @@
   align-items: center;
 
   gap: 42px;
-
   padding-left: 20px;
 
   animation: tickerMove 22s linear infinite;
@@ -74,18 +60,15 @@
 .ticker-item {
   display: flex;
   align-items: center;
-
   gap: 12px;
 
   white-space: nowrap;
 
   font-family: "Arial Narrow", Arial, sans-serif;
-
   font-size: 18px;
   font-weight: 900;
 
   letter-spacing: 1.8px;
-
   text-transform: uppercase;
 }
 
@@ -99,9 +82,7 @@
 
 .ticker-symbol {
   color: #b7372c;
-
   font-size: 8px;
-
   transform: rotate(45deg);
 }
 
@@ -119,19 +100,14 @@
   animation-play-state: paused;
 }
 
-
-/* =========================================
-   HEADER
-========================================= */
+/* HEADER */
 
 .report-header {
   width: 100%;
-
   min-height: 92px;
 
   display: grid;
   grid-template-columns: 42% 58%;
-
   align-items: center;
 
   background:
@@ -147,25 +123,16 @@
   -webkit-backdrop-filter: blur(4px);
 }
 
-
-/* =========================================
-   BRAND
-========================================= */
-
 .report-brand {
   display: flex;
   align-items: center;
-
   min-width: 0;
-
   padding-left: 12px;
 }
 
 .report-back {
   width: 24px;
-
   color: #7d817c;
-
   font-size: 28px;
   line-height: 1;
 }
@@ -183,54 +150,36 @@
   border: 1px solid rgba(180, 185, 178, 0.26);
 
   color: #e2e4df;
-
-  background:
-    rgba(4, 5, 5, 0.48);
+  background: rgba(4, 5, 5, 0.48);
 
   font-size: 28px;
   font-weight: 900;
 }
 
-
-/* =========================================
-   TITLE
-========================================= */
-
 .report-title {
   display: flex;
   align-items: baseline;
-
   gap: 12px;
 
   min-width: 0;
-
   white-space: nowrap;
 
   text-transform: uppercase;
 
   font-family: "Arial Narrow", Arial, sans-serif;
-
   font-weight: 900;
-
   letter-spacing: 0.6px;
 }
 
 .report-title-white {
   color: #f0f2ed;
-
   font-size: 42px;
 }
 
 .report-title-orange {
   color: #d64334;
-
   font-size: 42px;
 }
-
-
-/* =========================================
-   RIGHT CONTROLS
-========================================= */
 
 .report-controls {
   display: grid;
@@ -241,13 +190,11 @@
     minmax(250px, 1.15fr);
 
   gap: 10px;
-
   padding-left: 10px;
 }
 
 .report-control {
   position: relative;
-
   min-height: 68px;
 
   display: flex;
@@ -286,27 +233,19 @@
     );
 }
 
-
-/* =========================================
-   TIME
-========================================= */
-
 .time-control {
   gap: 14px;
 }
 
 .control-icon {
   color: #d43f32;
-
   font-size: 22px;
 }
 
 .control-time {
   color: #f2f3ef;
-
   font-size: 22px;
   font-weight: 900;
-
   line-height: 1.05;
 }
 
@@ -314,24 +253,15 @@
   margin-top: 4px;
 
   color: #b9bdb7;
-
   font-size: 14px;
   font-weight: 700;
-
   letter-spacing: 0.5px;
 }
 
-
-/* =========================================
-   MAIN CONTROL TEXT
-========================================= */
-
 .control-main {
   color: #f0f2ed;
-
   font-size: 20px;
   font-weight: 900;
-
   letter-spacing: 0.5px;
 }
 
@@ -341,24 +271,16 @@
 
 .period-arrow {
   position: absolute;
-
   right: 18px;
 
   color: #a5aaa4;
-
   font-size: 12px;
 }
-
-
-/* =========================================
-   HUD CORNERS FOR CONTROLS
-========================================= */
 
 .report-control::before {
   content: "";
 
   position: absolute;
-
   top: -1px;
   left: -1px;
 
@@ -373,7 +295,6 @@
   content: "";
 
   position: absolute;
-
   right: -1px;
   bottom: -1px;
 
@@ -384,13 +305,7 @@
   border-bottom: 1px solid #b7352b;
 }
 
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
 @media (max-width: 1450px) {
-
   .report-title-white,
   .report-title-orange {
     font-size: 36px;
@@ -410,417 +325,4 @@
   .control-main {
     font-size: 18px;
   }
-=======
-/* =========================================
-   RUNNING UNIT STRIP
-========================================= */
-
-.unit-ticker {
-  width: 100%;
-  height: 42px;
-
-  overflow: hidden;
-  position: relative;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(5, 6, 6, 0.96),
-      rgba(2, 3, 3, 0.92)
-    );
-
-  border-top: 1px solid rgba(190, 195, 188, 0.25);
-  border-bottom: 1px solid rgba(190, 195, 188, 0.22);
-}
-
-.unit-ticker::before,
-.unit-ticker::after {
-  content: "";
-
-  position: absolute;
-  top: 0;
-
-  width: 100px;
-  height: 100%;
-
-  z-index: 4;
-  pointer-events: none;
-}
-
-.unit-ticker::before {
-  left: 0;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 1),
-      rgba(0, 0, 0, 0)
-    );
-}
-
-.unit-ticker::after {
-  right: 0;
-
-  background:
-    linear-gradient(
-      270deg,
-      rgba(0, 0, 0, 1),
-      rgba(0, 0, 0, 0)
-    );
-}
-
-.ticker-track {
-  height: 100%;
-  width: max-content;
-
-  display: flex;
-  align-items: center;
-
-  gap: 42px;
-
-  padding-left: 20px;
-
-  animation: tickerMove 22s linear infinite;
-}
-
-.ticker-item {
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  white-space: nowrap;
-
-  font-family: "Arial Narrow", Arial, sans-serif;
-
-  font-size: 18px;
-  font-weight: 900;
-
-  letter-spacing: 1.8px;
-
-  text-transform: uppercase;
-}
-
-.ticker-6bbpak {
-  color: #d7dad5;
-}
-
-.ticker-rarog {
-  color: #d94233;
-}
-
-.ticker-symbol {
-  color: #b7372c;
-
-  font-size: 8px;
-
-  transform: rotate(45deg);
-}
-
-@keyframes tickerMove {
-  from {
-    transform: translateX(-50%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-.unit-ticker:hover .ticker-track {
-  animation-play-state: paused;
-}
-
-
-/* =========================================
-   HEADER
-========================================= */
-
-.report-header {
-  width: 100%;
-
-  min-height: 92px;
-
-  display: grid;
-  grid-template-columns: 42% 58%;
-
-  align-items: center;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(6, 7, 7, 0.76),
-      rgba(3, 4, 4, 0.58)
-    );
-
-  border-bottom: 1px solid rgba(170, 175, 168, 0.28);
-
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-
-/* =========================================
-   BRAND
-========================================= */
-
-.report-brand {
-  display: flex;
-  align-items: center;
-
-  min-width: 0;
-
-  padding-left: 12px;
-}
-
-.report-back {
-  width: 24px;
-
-  color: #7d817c;
-
-  font-size: 28px;
-  line-height: 1;
-}
-
-.report-emblem {
-  width: 60px;
-  height: 60px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-right: 12px;
-
-  border: 1px solid rgba(180, 185, 178, 0.26);
-
-  color: #e2e4df;
-
-  background:
-    rgba(4, 5, 5, 0.48);
-
-  font-size: 28px;
-  font-weight: 900;
-}
-
-
-/* =========================================
-   TITLE
-========================================= */
-
-.report-title {
-  display: flex;
-  align-items: baseline;
-
-  gap: 12px;
-
-  min-width: 0;
-
-  white-space: nowrap;
-
-  text-transform: uppercase;
-
-  font-family: "Arial Narrow", Arial, sans-serif;
-
-  font-weight: 900;
-
-  letter-spacing: 0.6px;
-}
-
-.report-title-white {
-  color: #f0f2ed;
-
-  font-size: 42px;
-}
-
-.report-title-orange {
-  color: #d64334;
-
-  font-size: 42px;
-}
-
-
-/* =========================================
-   RIGHT CONTROLS
-========================================= */
-
-.report-controls {
-  display: grid;
-
-  grid-template-columns:
-    minmax(220px, 1fr)
-    minmax(220px, 1fr)
-    minmax(250px, 1.15fr);
-
-  gap: 10px;
-
-  padding-left: 10px;
-}
-
-.report-control {
-  position: relative;
-
-  min-height: 68px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 20px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(5, 7, 7, 0.78),
-      rgba(2, 3, 3, 0.68)
-    );
-
-  border: 1px solid rgba(175, 180, 173, 0.36);
-
-  color: #f0f2ed;
-
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-
-  transition:
-    border-color 0.18s ease,
-    background 0.18s ease;
-}
-
-.report-control:hover {
-  border-color: rgba(210, 215, 208, 0.62);
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(10, 12, 12, 0.84),
-      rgba(4, 5, 5, 0.74)
-    );
-}
-
-
-/* =========================================
-   TIME
-========================================= */
-
-.time-control {
-  gap: 14px;
-}
-
-.control-icon {
-  color: #d43f32;
-
-  font-size: 22px;
-}
-
-.control-time {
-  color: #f2f3ef;
-
-  font-size: 22px;
-  font-weight: 900;
-
-  line-height: 1.05;
-}
-
-.control-date {
-  margin-top: 4px;
-
-  color: #b9bdb7;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  letter-spacing: 0.5px;
-}
-
-
-/* =========================================
-   MAIN CONTROL TEXT
-========================================= */
-
-.control-main {
-  color: #f0f2ed;
-
-  font-size: 20px;
-  font-weight: 900;
-
-  letter-spacing: 0.5px;
-}
-
-.period-control {
-  padding-right: 42px;
-}
-
-.period-arrow {
-  position: absolute;
-
-  right: 18px;
-
-  color: #a5aaa4;
-
-  font-size: 12px;
-}
-
-
-/* =========================================
-   HUD CORNERS FOR CONTROLS
-========================================= */
-
-.report-control::before {
-  content: "";
-
-  position: absolute;
-
-  top: -1px;
-  left: -1px;
-
-  width: 18px;
-  height: 18px;
-
-  border-top: 1px solid #b7352b;
-  border-left: 1px solid #b7352b;
-}
-
-.report-control::after {
-  content: "";
-
-  position: absolute;
-
-  right: -1px;
-  bottom: -1px;
-
-  width: 18px;
-  height: 18px;
-
-  border-right: 1px solid #b7352b;
-  border-bottom: 1px solid #b7352b;
-}
-
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media (max-width: 1450px) {
-
-  .report-title-white,
-  .report-title-orange {
-    font-size: 36px;
-  }
-
-  .report-controls {
-    grid-template-columns:
-      1fr
-      1fr
-      1.1fr;
-  }
-
-  .control-time {
-    font-size: 19px;
-  }
-
-  .control-main {
-    font-size: 18px;
-  }
->>>>>>> 66b00f5eacf12c02d064900196c5788d8e62295f
 }
