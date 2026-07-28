@@ -1,10 +1,349 @@
+/* =========================================
+   TABLE SECTION
+========================================= */
+
+.combat-statistics {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: 4;
+}
+
+
+/* =========================================
+   TWO TABLES
+========================================= */
+
+.tables-layout {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 10px;
+
+  margin: 0;
+  padding: 0;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.report-table {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(4, 6, 6, 0.82),
+      rgba(1, 2, 2, 0.74)
+    );
+
+  border: 1px solid rgba(175, 180, 173, 0.46);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  box-shadow:
+    inset 0 0 25px rgba(255, 255, 255, 0.012),
+    0 6px 18px rgba(0, 0, 0, 0.42);
+}
+
+
+/* =========================================
+   RED HUD CORNERS
+========================================= */
+
+.report-table::before {
+  content: "";
+
+  position: absolute;
+  top: -1px;
+  left: -1px;
+
+  width: 26px;
+  height: 26px;
+
+  border-top: 2px solid #bd382d;
+  border-left: 2px solid #bd382d;
+
+  z-index: 5;
+  pointer-events: none;
+}
+
+.report-table::after {
+  content: "";
+
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+
+  width: 26px;
+  height: 26px;
+
+  border-right: 2px solid #bd382d;
+  border-bottom: 2px solid #bd382d;
+
+  z-index: 5;
+  pointer-events: none;
+}
+
+
+/* =========================================
+   COLUMN HEADER
+========================================= */
+
+.report-table-columns {
+  width: 100%;
+  min-height: 42px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    110px
+    120px;
+
+  align-items: center;
+
+  padding: 0 14px;
+
+  background: rgba(0, 0, 0, 0.72);
+
+  border-bottom:
+    1px solid rgba(175, 180, 173, 0.30);
+
+  color: #d84334;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+}
+
+.report-table-columns > div:nth-child(2),
+.report-table-columns > div:nth-child(3) {
+  text-align: center;
+}
+
+.category-label {
+  color: #858b85 !important;
+
+  text-align: left !important;
+
+  font-size: 10px;
+
+  letter-spacing: 1.5px;
+}
+
+
+/* =========================================
+   BODY
+========================================= */
+
+.report-table-body {
+  width: 100%;
+}
+
+
+/* =========================================
+   ROW
+========================================= */
+
+.report-row {
+  position: relative;
+
+  width: 100%;
+  min-height: 39px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    110px
+    120px;
+
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.34);
+
+  border-bottom:
+    1px solid rgba(145, 150, 145, 0.20);
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.report-row:last-child {
+  border-bottom: none;
+}
+
+.report-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(190, 50, 40, 0.13),
+      rgba(0, 0, 0, 0.42)
+    );
+
+  border-bottom-color:
+    rgba(190, 50, 40, 0.38);
+}
+
+
+/* =========================================
+   HIGHLIGHT
+========================================= */
+
+.report-row-highlight {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(190, 55, 43, 0.24),
+      rgba(10, 12, 12, 0.48)
+    );
+
+  box-shadow:
+    inset 3px 0 0 #bd382d;
+}
+
+
+/* =========================================
+   NAME
+========================================= */
+
+.report-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 14px;
+
+  color: #eef0ec;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  letter-spacing: 0.2px;
+}
+
+.report-name-cell > span {
+  min-width: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================
+   ICON
+========================================= */
+
+.report-row-icon {
+  width: 38px;
+  min-width: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  color: #cf3c30;
+
+  font-size: 17px;
+
+  filter:
+    drop-shadow(
+      0 0 4px rgba(207, 60, 48, 0.22)
+    );
+}
+
+
+/* =========================================
+   ACCENT
+========================================= */
+
+.report-accent {
+  margin-left: 5px;
+
+  color: #d84334;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   NUMBERS
+========================================= */
+
+.report-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #f3f4f1;
+
+  font-size: 18px;
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+.report-number.zero {
+  color: #666b66;
+}
+
+
+/* =========================================
+   SECRET
+========================================= */
+
+.secret {
+  display: inline-block;
+
+  padding: 3px 6px;
+
+  border: 1px solid #b9342a;
+
+  background: rgba(100, 5, 5, 0.16);
+
+  color: #d43e32;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
 @media (max-width: 1400px) {
+
   .report-table-columns,
   .report-row {
     grid-template-columns:
       minmax(0, 1fr)
-      95px
-      110px;
+      90px
+      100px;
   }
 
   .report-name-cell {

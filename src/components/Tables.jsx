@@ -46,23 +46,16 @@ const icons = {
 function ReportTable({ data }) {
   return (
     <div className="report-table">
-
       <div className="report-table-columns">
         <div className="category-label">
           КАТЕГОРІЯ
         </div>
 
-        <div>
-          УРАЖЕНО
-        </div>
-
-        <div>
-          ЗНИЩЕНО
-        </div>
+        <div>УРАЖЕНО</div>
+        <div>ЗНИЩЕНО</div>
       </div>
 
       <div className="report-table-body">
-
         {data.map((item, index) => {
           const Icon = icons[item.icon] || FaCircle;
 
@@ -75,9 +68,7 @@ function ReportTable({ data }) {
               }`}
               key={`${item.name}-${index}`}
             >
-
               <div className="report-name-cell">
-
                 <div className="report-row-icon">
                   <Icon />
                 </div>
@@ -91,7 +82,6 @@ function ReportTable({ data }) {
                     {item.accent}
                   </strong>
                 )}
-
               </div>
 
               <div
@@ -121,13 +111,10 @@ function ReportTable({ data }) {
                   item.destroyed
                 )}
               </div>
-
             </div>
           );
         })}
-
       </div>
-
     </div>
   );
 }
@@ -135,15 +122,10 @@ function ReportTable({ data }) {
 function Tables() {
   return (
     <section className="combat-statistics">
-
       <div className="tables-layout">
-
         <ReportTable data={leftTable} />
-
         <ReportTable data={rightTable} />
-
       </div>
-
     </section>
   );
 }
