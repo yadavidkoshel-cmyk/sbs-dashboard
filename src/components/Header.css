@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .header {
   text-align: center;
   padding: 20px;
@@ -15,3 +16,22 @@
   margin: 5px 0 0 0;
   color: #333;
 }
+=======
+.header {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-bottom: 2px solid #000;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin: 0;
+}
+
+.header p {
+  font-size: 18px;
+  margin: 5px 0 0 0;
+  color: #333;
+}
+>>>>>>> 66b00f5eacf12c02d064900196c5788d8e62295f
