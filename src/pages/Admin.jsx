@@ -57,8 +57,23 @@ function Admin() {
         }
       );
 
-      const reportDate =
-        reportRows?.[2]?.[1] || null;
+      const rawReportDate = reportRows?.[2]?.[1] || null;
+
+function excelDateToLocalString(value) {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  return String(value);
+}
+
+const reportDate = excelDateToLocalString(rawReportDate);
 
       const strikeFlights =
         Number(reportRows?.[3]?.[1] || 0);
@@ -150,8 +165,8 @@ function Admin() {
           }
 
           updates.push({
-            date: row[0],
-            title: row[1],
+  date: excelDateToLocalString(row[0]),
+  title: row[1],
             description: row[2] || "",
             isNew:
               String(row[3] || "")
