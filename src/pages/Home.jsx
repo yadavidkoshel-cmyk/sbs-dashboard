@@ -431,56 +431,62 @@ function Home() {
           </article>
 
           <aside className="units-box">
-            <div className="section-heading">
-              <span className="section-number">
-                02
-              </span>
+  <div className="section-heading">
+    <span className="section-number">
+      02
+    </span>
 
-              <div>
-                <div className="section-kicker">
-                  UNITS
-                </div>
+    <div>
+      <div className="section-kicker">
+        UNITS
+      </div>
 
-                <h2>ПІДРОЗДІЛИ</h2>
-              </div>
-            </div>
+      <h2>ПІДРОЗДІЛИ</h2>
+    </div>
+  </div>
 
-            <div className="unit-card">
-              <div className="unit-logo-placeholder">
-                6
-              </div>
+  <div className="unit-card">
+    <div className="unit-logo">
+      <img
+        src="/logos/6bbpak-logo.png"
+        alt="Логотип 6 бБпАК"
+      />
+    </div>
 
-              <div className="unit-info">
-                <span className="unit-small">
-                  ПІДРОЗДІЛ
-                </span>
+    <div className="unit-info">
+      <span className="unit-small">
+        ПІДРОЗДІЛ
+      </span>
 
-                <strong>6ББпАК</strong>
-              </div>
+      <strong>6 бБпАК</strong>
+    </div>
 
-              <div className="unit-indicator">
-                ACTIVE
-              </div>
-            </div>
+    <div className="unit-indicator">
+      ACTIVE
+    </div>
+  </div>
 
-            <div className="unit-card">
-              <div className="unit-logo-placeholder">
-                R
-              </div>
+  <div className="unit-card">
+    <div className="unit-logo">
+      <img
+        src="/logos/rarog-logo.png"
+        alt="Логотип RAROG"
+      />
+    </div>
 
-              <div className="unit-info">
-                <span className="unit-small">
-                  ПІДРОЗДІЛ
-                </span>
+    <div className="unit-info">
+      <span className="unit-small">
+        ПІДРОЗДІЛ
+      </span>
 
-                <strong>RAROG</strong>
-              </div>
+      <strong>RAROG</strong>
+    </div>
 
-              <div className="unit-indicator">
-                ACTIVE
-              </div>
-            </div>
-          </aside>
+    <div className="unit-indicator">
+      ACTIVE
+    </div>
+  </div>
+</aside>
         </section>
 
         <Tables
