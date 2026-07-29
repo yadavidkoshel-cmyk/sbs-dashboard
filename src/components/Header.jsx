@@ -1,31 +1,24 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import {
   FaClock,
   FaCalendarAlt,
   FaChevronDown,
 } from "react-icons/fa";
 
-import {
-  formatReportDate,
-} from "../services/reportService";
-
+import { formatReportDate } from "../services/reportService";
 import "../styles/Header.css";
 
 const tickerUnits = [
   "RAROG",
-  "6ББпАК",
+  "6 бБпАК",
   "RAROG",
-  "6ББпАК",
+  "6 бБпАК",
   "RAROG",
-  "6ББпАК",
+  "6 бБпАК",
   "RAROG",
-  "6ББпАК",
+  "6 бБпАК",
   "RAROG",
-  "6ББпАК",
+  "6 бБпАК",
 ];
 
 const months = [
@@ -43,6 +36,29 @@ const months = [
   { number: "12", name: "Грудень" },
 ];
 
+function TickerGroup({ copyName }) {
+  return (
+    <div
+      className="ticker-group"
+      aria-hidden={copyName === "second"}
+    >
+      {tickerUnits.map((unit, index) => (
+        <div
+          className={
+            unit === "RAROG"
+              ? "ticker-item ticker-rarog"
+              : "ticker-item ticker-6bbpak"
+          }
+          key={`${copyName}-${unit}-${index}`}
+        >
+          <span className="ticker-dot">◆</span>
+          {unit}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Header({
   selectedPeriod,
   onPeriodChange,
@@ -50,47 +66,49 @@ function Header({
   onMonthChange,
   reportDate,
 }) {
-  const [currentTime, setCurrentTime] =
-    useState(new Date());
+  const [currentTime, setCurrentTime] = useState(
+    new Date()
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
 
-  const timeText =
-    currentTime.toLocaleTimeString(
-      "uk-UA",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }
-    );
+  const timeText = currentTime.toLocaleTimeString(
+    "uk-UA",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }
+  );
 
-  const dayText =
-    currentTime.toLocaleDateString(
-      "uk-UA",
-      {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-      }
-    );
+  const dayText = currentTime.toLocaleDateString(
+    "uk-UA",
+    {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+    }
+  );
 
-  const selectedYear =
-    selectedMonth?.split("-")?.[0] ||
-    reportDate?.split("-")?.[0] ||
-    String(currentTime.getFullYear());
+  const currentYear = String(
+    currentTime.getFullYear()
+  );
 
   const currentMonthNumber = String(
     currentTime.getMonth() + 1
   ).padStart(2, "0");
+
+  const selectedYear =
+    selectedMonth?.split("-")?.[0] ||
+    reportDate?.split("-")?.[0] ||
+    currentYear;
 
   const safeSelectedMonth =
     /^\d{4}-\d{2}$/.test(
@@ -103,32 +121,14 @@ function Header({
     <>
       <div className="unit-ticker">
         <div className="ticker-track">
-          {tickerUnits.map(
-            (unit, index) => (
-              <div
-                className={`ticker-item ${
-                  unit === "RAROG"
-                    ? "ticker-rarog"
-                    : "ticker-6bbpak"
-                }`}
-                key={`${unit}-${index}`}
-              >
-                <span className="ticker-dot">
-                  ◆
-                </span>
-
-                {unit}
-              </div>
-            )
-          )}
+          <TickerGroup copyName="first" />
+          <TickerGroup copyName="second" />
         </div>
       </div>
 
       <header className="report-header">
         <div className="report-brand">
-          <div className="report-emblem">
-            R
-          </div>
+          <div className="report-emblem">R</div>
 
           <div className="report-brand-text">
             <div className="report-kicker">
@@ -142,9 +142,7 @@ function Header({
             <div className="report-date">
               Дані станом на:{" "}
               <strong>
-                {formatReportDate(
-                  reportDate
-                )}
+                {formatReportDate(reportDate)}
               </strong>
             </div>
           </div>
@@ -174,7 +172,6 @@ function Header({
           <label className="month-picker">
             <span className="month-picker-label">
               <FaCalendarAlt />
-
               ВИБРАТИ МІСЯЦЬ
             </span>
 
@@ -182,9 +179,7 @@ function Header({
               <select
                 value={safeSelectedMonth}
                 onChange={(event) =>
-                  onMonthChange(
-                    event.target.value
-                  )
+                  onMonthChange(event.target.value)
                 }
               >
                 {months.map((month) => (
@@ -216,7 +211,6 @@ function Header({
               <span className="period-number">
                 01
               </span>
-
               СЬОГОДНІ
             </button>
 
@@ -234,7 +228,6 @@ function Header({
               <span className="period-number">
                 07
               </span>
-
               ЗА ТИЖДЕНЬ
             </button>
 
@@ -252,7 +245,6 @@ function Header({
               <span className="period-number">
                 30
               </span>
-
               ЗА МІСЯЦЬ
             </button>
           </div>

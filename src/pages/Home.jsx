@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import Header from "../components/Header";
 import Tables from "../components/Tables";
@@ -42,6 +39,33 @@ function getCurrentMonth() {
   return `${year}-${month}`;
 }
 
+function UnitLogo({
+  src,
+  alt,
+  fallback,
+}) {
+  const [imageFailed, setImageFailed] =
+    useState(false);
+
+  return (
+    <div className="unit-logo">
+      {imageFailed ? (
+        <span className="unit-logo-fallback">
+          {fallback}
+        </span>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          onError={() =>
+            setImageFailed(true)
+          }
+        />
+      )}
+    </div>
+  );
+}
+
 function Home() {
   const [report, setReport] =
     useState(EMPTY_REPORT);
@@ -77,6 +101,7 @@ function Home() {
       }
 
       requestIsRunning = true;
+
       currentController =
         new AbortController();
 
@@ -194,6 +219,7 @@ function Home() {
         muted
         loop
         playsInline
+        preload="auto"
       >
         <source
           src="/background.mp4"
@@ -207,6 +233,7 @@ function Home() {
         muted
         loop
         playsInline
+        preload="auto"
       >
         <source
           src="/background.mp4"
@@ -431,67 +458,63 @@ function Home() {
           </article>
 
           <aside className="units-box">
-  <div className="section-heading">
-    <span className="section-number">
-      02
-    </span>
+            <div className="section-heading">
+              <span className="section-number">
+                02
+              </span>
 
-    <div>
-      <div className="section-kicker">
-        UNITS
-      </div>
+              <div>
+                <div className="section-kicker">
+                  UNITS
+                </div>
 
-      <h2>ПІДРОЗДІЛИ</h2>
-    </div>
-  </div>
+                <h2>ПІДРОЗДІЛИ</h2>
+              </div>
+            </div>
 
-  <div className="unit-card">
-    <div className="unit-logo">
-      <img
-        src="/logos/6bbpak-logo.png"
-        alt="Логотип 6 бБпАК"
-      />
-    </div>
+            <div className="unit-card">
+              <UnitLogo
+                src="/logos/6bbpak-logo.png"
+                alt="Логотип 6 бБпАК"
+                fallback="6"
+              />
 
-    <div className="unit-info">
-      <span className="unit-small">
-        ПІДРОЗДІЛ
-      </span>
+              <div className="unit-info">
+                <span className="unit-small">
+                  ПІДРОЗДІЛ
+                </span>
 
-      <strong>6 бБпАК</strong>
-    </div>
+                <strong>6 бБпАК</strong>
+              </div>
 
-    <div className="unit-indicator">
-      ACTIVE
-    </div>
-  </div>
+              <div className="unit-indicator">
+                ACTIVE
+              </div>
+            </div>
 
-  <div className="unit-card">
-    <div className="unit-logo">
-      <img
-        src="/logos/rarog-logo.png"
-        alt="Логотип RAROG"
-      />
-    </div>
+            <div className="unit-card">
+              <UnitLogo
+                src="/logos/rarog-logo.png"
+                alt="Логотип RAROG"
+                fallback="R"
+              />
 
-    <div className="unit-info">
-      <span className="unit-small">
-        ПІДРОЗДІЛ
-      </span>
+              <div className="unit-info">
+                <span className="unit-small">
+                  ПІДРОЗДІЛ
+                </span>
 
-      <strong>RAROG</strong>
-    </div>
+                <strong>RAROG</strong>
+              </div>
 
-    <div className="unit-indicator">
-      ACTIVE
-    </div>
-  </div>
-</aside>
+              <div className="unit-indicator">
+                ACTIVE
+              </div>
+            </div>
+          </aside>
         </section>
 
-        <Tables
-          categories={categories}
-        />
+        <Tables categories={categories} />
       </div>
     </main>
   );

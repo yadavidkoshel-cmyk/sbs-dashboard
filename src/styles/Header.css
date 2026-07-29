@@ -1,42 +1,62 @@
 /* =========================================
-   TICKER
+   БЕСКОНЕЧНАЯ ВЕРХНЯЯ СТРОКА
 ========================================= */
 
 .unit-ticker {
   position: relative;
+  z-index: 10;
+
   width: 100%;
   height: 42px;
+
   overflow: hidden;
+
   background:
     linear-gradient(
       90deg,
       rgba(2, 4, 4, 0.98),
-      rgba(8, 12, 12, 0.95),
+      rgba(8, 12, 12, 0.96),
       rgba(2, 4, 4, 0.98)
     );
+
   border-top:
     1px solid rgba(216, 64, 52, 0.42);
+
   border-bottom:
     1px solid rgba(180, 185, 180, 0.22);
-  z-index: 6;
 }
 
 .ticker-track {
   width: max-content;
   height: 100%;
+
   display: flex;
   align-items: center;
-  animation:
-    ticker-scroll 30s linear infinite;
+
+  animation: ticker-scroll 35s linear infinite;
+  will-change: transform;
+}
+
+.ticker-group {
+  flex-shrink: 0;
+
+  height: 100%;
+
+  display: flex;
+  align-items: center;
 }
 
 .ticker-item {
-  min-width: 180px;
-  padding: 0 30px;
-  font-size: 13px;
+  flex-shrink: 0;
+
+  min-width: 190px;
+  padding: 0 28px;
+
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: 2px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .ticker-rarog {
@@ -44,13 +64,14 @@
 }
 
 .ticker-6bbpak {
-  color: #d8dbd6;
+  color: #e4e6e2;
 }
 
 .ticker-dot {
-  margin-right: 10px;
-  color: #666b66;
-  font-size: 8px;
+  margin-right: 12px;
+
+  color: #676d68;
+  font-size: 7px;
 }
 
 @keyframes ticker-scroll {
@@ -70,6 +91,7 @@
 .report-header {
   position: relative;
   z-index: 6;
+
   min-height: 122px;
 
   display: grid;
@@ -95,11 +117,12 @@
 }
 
 /* =========================================
-   BRAND
+   НАЗВАНИЕ
 ========================================= */
 
 .report-brand {
   min-width: 0;
+
   display: flex;
   align-items: center;
   gap: 17px;
@@ -153,6 +176,7 @@
 
 .report-kicker {
   color: #d84034;
+
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 2.2px;
@@ -160,7 +184,9 @@
 
 .report-title {
   margin: 4px 0;
+
   color: #f2f3ef;
+
   font-size: 31px;
   font-weight: 900;
   line-height: 1;
@@ -177,7 +203,7 @@
 }
 
 /* =========================================
-   CONTROLS
+   ПРАВАЯ ЧАСТЬ
 ========================================= */
 
 .report-controls {
@@ -194,11 +220,12 @@
 }
 
 /* =========================================
-   CLOCK
+   ЧАСЫ
 ========================================= */
 
 .clock-box {
   position: relative;
+
   min-width: 0;
   min-height: 82px;
 
@@ -207,7 +234,6 @@
   gap: 13px;
 
   padding: 12px 14px;
-
   overflow: hidden;
 
   background:
@@ -262,10 +288,6 @@
 
   color: #d84034;
   font-size: 18px;
-
-  box-shadow:
-    0 0 16px
-      rgba(216, 64, 52, 0.12);
 }
 
 .clock-content {
@@ -278,6 +300,7 @@
 
 .clock-label {
   color: #717871;
+
   font-size: 8px;
   font-weight: 900;
   letter-spacing: 1.5px;
@@ -285,30 +308,36 @@
 
 .clock-time {
   color: #ffffff;
+
   font-family:
     "Courier New",
     monospace;
+
   font-size: 21px;
   line-height: 1;
   letter-spacing: 1.5px;
+
   white-space: nowrap;
 }
 
 .clock-date {
   overflow: hidden;
+
   color: #969d97;
   font-size: 10px;
   text-transform: capitalize;
+
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 /* =========================================
-   MONTH SELECT
+   ВЫБОР МЕСЯЦА
 ========================================= */
 
 .month-picker {
   position: relative;
+
   min-width: 0;
   min-height: 82px;
 
@@ -360,6 +389,7 @@
   gap: 8px;
 
   color: #858c86;
+
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 1.2px;
@@ -381,9 +411,7 @@
   appearance: none;
   -webkit-appearance: none;
 
-  padding:
-    0 38px
-    0 13px;
+  padding: 0 38px 0 13px;
 
   cursor: pointer;
 
@@ -398,20 +426,11 @@
     );
 
   color: #ffffff;
+
   font-size: 14px;
   font-weight: 900;
-  letter-spacing: 0.4px;
 
   outline: none;
-}
-
-.month-select-wrapper select:hover,
-.month-select-wrapper select:focus {
-  border-color: #d84034;
-
-  box-shadow:
-    0 0 12px
-      rgba(216, 64, 52, 0.14);
 }
 
 .month-select-wrapper select option {
@@ -426,15 +445,14 @@
 
   pointer-events: none;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
   color: #d84034;
   font-size: 11px;
 }
 
 /* =========================================
-   PERIOD BUTTONS
+   КНОПКИ ПЕРИОДОВ
 ========================================= */
 
 .period-buttons {
@@ -449,6 +467,7 @@
 
 .period-button {
   position: relative;
+
   min-width: 0;
   min-height: 82px;
 
@@ -459,7 +478,6 @@
   gap: 7px;
 
   padding: 8px;
-
   cursor: pointer;
 
   border:
@@ -473,6 +491,7 @@
     );
 
   color: #999f99;
+
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.7px;
@@ -487,14 +506,17 @@
 .period-button:hover {
   border-color: #d84034;
   color: #ffffff;
+
   transform: translateY(-1px);
 }
 
 .period-number {
   color: #666c67;
+
   font-family:
     "Courier New",
     monospace;
+
   font-size: 16px;
   font-weight: 900;
 }
@@ -518,19 +540,9 @@
       rgba(216, 64, 52, 0.18);
 }
 
-.period-button.active
-.period-number {
-  color: rgba(
-    255,
-    255,
-    255,
-    0.72
-  );
+.period-button.active .period-number {
+  color: rgba(255, 255, 255, 0.72);
 }
-
-/* =========================================
-   RESPONSIVE
-========================================= */
 
 @media (max-width: 1400px) {
   .report-header {
@@ -553,4 +565,125 @@
   .period-button {
     font-size: 9px;
   }
+}/* =========================================
+   БЕСКОНЕЧНЫЙ ВИДЕО-ФОН
+========================================= */
+
+.dashboard {
+  position: relative;
+
+  width: 100%;
+  min-width: 1180px;
+  min-height: 100vh;
+
+  overflow-x: hidden;
+
+  background: #020505;
+}
+
+.background-video-blur,
+.background-video-main {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  pointer-events: none;
+
+  transform: translateZ(0);
+}
+
+.background-video-blur {
+  z-index: 0;
+
+  object-fit: cover;
+
+  filter:
+    blur(24px)
+    brightness(0.42);
+
+  transform: scale(1.14);
+}
+
+.background-video-main {
+  z-index: 1;
+
+  object-fit: cover;
+
+  filter:
+    brightness(0.58)
+    contrast(1.08);
+}
+
+.video-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 10, 12, 0.18),
+      rgba(0, 5, 6, 0.48)
+    );
+}
+
+.dashboard-content {
+  position: relative;
+
+  z-index: 3;
+
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* =========================================
+   ЛОГОТИПЫ ПОДРАЗДЕЛЕНИЙ
+========================================= */
+
+.unit-logo {
+  width: 58px;
+  min-width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(216, 64, 52, 0.14),
+      rgba(0, 0, 0, 0.65)
+    );
+
+  border:
+    1px solid rgba(216, 64, 52, 0.55);
+
+  box-sizing: border-box;
+}
+
+.unit-logo img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+.unit-logo-fallback {
+  color: #ffffff;
+
+  font-size: 25px;
+  font-weight: 900;
 }
