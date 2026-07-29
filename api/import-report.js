@@ -1,33 +1,157 @@
-function normalizeDate(value) {
-  if (!value) return null;
+import {
+  createHmac,
+  timingSafeEqual,
+} from "node:crypto";
 
-  if (typeof value === "string") {
-    const direct = value.match(/^\d{4}-\d{2}-\d{2}$/);
+const COOKIE_NAME = "rarog_admin_session";
 
-    if (direct) {
-      return value;
+/* =========================================
+   ПРОВЕРКА АДМИН-СЕССИИ
+========================================= */
+
+function safeEqual(firstValue, secondValue) {
+  const first = Buffer.from(String(firstValue));
+  const second = Buffer.from(String(secondValue));
+
+  if (first.length !== second.length) {
+    return false;
+  }
+
+  return timingSafeEqual(first, second);
+}
+
+function createSignature(value, secret) {
+  return createHmac("sha256", secret)
+    .update(value)
+    .digest("base64url");
+}
+
+function getCookie(req, name) {
+  const cookieHeader = req.headers.cookie || "";
+
+  const cookies = cookieHeader.split(";");
+
+  for (const cookie of cookies) {
+    const [cookieName, ...cookieValue] =
+      cookie.trim().split("=");
+
+    if (cookieName === name) {
+      return decodeURIComponent(
+        cookieValue.join("=")
+      );
     }
   }
 
-  const date = new Date(value);
+  return null;
+}
 
-  if (Number.isNaN(date.getTime())) {
+function isAdminAuthenticated(req) {
+  const sessionSecret =
+    process.env.ADMIN_SESSION_SECRET;
+
+  if (!sessionSecret) {
+    return false;
+  }
+
+  const token = getCookie(req, COOKIE_NAME);
+
+  if (!token) {
+    return false;
+  }
+
+  const separatorIndex = token.indexOf(".");
+
+  if (separatorIndex === -1) {
+    return false;
+  }
+
+  const expiresAt = token.slice(
+    0,
+    separatorIndex
+  );
+
+  const receivedSignature = token.slice(
+    separatorIndex + 1
+  );
+
+  const expectedSignature = createSignature(
+    expiresAt,
+    sessionSecret
+  );
+
+  const expiresNumber = Number(expiresAt);
+
+  const signatureIsValid = safeEqual(
+    receivedSignature,
+    expectedSignature
+  );
+
+  const expirationIsValid =
+    Number.isFinite(expiresNumber) &&
+    expiresNumber > Date.now();
+
+  return signatureIsValid && expirationIsValid;
+}
+
+/* =========================================
+   ДАТА
+========================================= */
+
+function normalizeDate(value) {
+  if (!value) {
     return null;
   }
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const text = String(value).trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    return text;
+  }
+
+  const ukrainianDate = text.match(
+    /^(\d{2})[./-](\d{2})[./-](\d{4})$/
+  );
+
+  if (ukrainianDate) {
+    const [, day, month, year] = ukrainianDate;
+
+    return `${year}-${month}-${day}`;
+  }
+
+  const parsedDate = new Date(text);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  const year = parsedDate.getUTCFullYear();
+
+  const month = String(
+    parsedDate.getUTCMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    parsedDate.getUTCDate()
+  ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
 
+/* =========================================
+   SUPABASE
+========================================= */
+
 async function supabaseRequest(path, options = {}) {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const secretKey = process.env.SUPABASE_SECRET_KEY;
+  const supabaseUrl =
+    process.env.SUPABASE_URL;
+
+  const secretKey =
+    process.env.SUPABASE_SECRET_KEY;
 
   if (!supabaseUrl || !secretKey) {
-    throw new Error("Supabase environment variables are missing");
+    throw new Error(
+      "Змінні Supabase не налаштовані"
+    );
   }
 
   const response = await fetch(
@@ -37,7 +161,6 @@ async function supabaseRequest(path, options = {}) {
 
       headers: {
         apikey: secretKey,
-        Authorization: `Bearer ${secretKey}`,
         "Content-Type": "application/json",
         Prefer: "return=minimal",
         ...(options.headers || {}),
@@ -46,199 +169,221 @@ async function supabaseRequest(path, options = {}) {
   );
 
   if (!response.ok) {
-    const text = await response.text();
+    const responseText = await response.text();
 
     throw new Error(
-      `Supabase error ${response.status}: ${text}`
+      `Supabase error ${response.status}: ${responseText}`
     );
   }
 
   return response;
 }
 
+function toNumber(value) {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : 0;
+}
+
+/* =========================================
+   API
+========================================= */
+
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+
     return res.status(405).json({
+      ok: false,
       error: "Method not allowed",
     });
   }
 
+  if (!isAdminAuthenticated(req)) {
+    return res.status(401).json({
+      ok: false,
+      error:
+        "Потрібно увійти в адміністративну панель",
+    });
+  }
+
   try {
-    const {
-      reportDate,
-      totals,
-      categories,
-      updates,
-    } = req.body || {};
+    const reportDate = normalizeDate(
+      req.body?.reportDate
+    );
 
-    const normalizedDate = normalizeDate(reportDate);
-
-    if (!normalizedDate) {
+    if (!reportDate) {
       return res.status(400).json({
-        error: "Invalid report date",
-        message: "Не вдалося визначити дату звіту",
+        ok: false,
+        error: "Некоректна дата звіту",
       });
     }
 
-    if (!totals) {
-      return res.status(400).json({
-        error: "Missing totals",
-        message: "Відсутні підсумкові дані",
-      });
-    }
-
-    const safeCategories = Array.isArray(categories)
-      ? categories
+    const categories = Array.isArray(
+      req.body?.categories
+    )
+      ? req.body.categories
       : [];
 
-    const safeUpdates = Array.isArray(updates)
-      ? updates
+    const updates = Array.isArray(
+      req.body?.updates
+    )
+      ? req.body.updates
       : [];
 
-    /* =========================================
-       ВИДАЛЯЄМО СТАРІ ДАНІ ЗА ЦЮ ДАТУ
-    ========================================= */
+    const encodedDate =
+      encodeURIComponent(reportDate);
 
-    await Promise.all([
-      supabaseRequest(
-        `daily_reports?report_date=eq.${normalizedDate}`,
-        {
-          method: "DELETE",
-        }
-      ),
-
-      supabaseRequest(
-        `report_categories?report_date=eq.${normalizedDate}`,
-        {
-          method: "DELETE",
-        }
-      ),
-
-      supabaseRequest(
-        `operational_updates?report_date=eq.${normalizedDate}`,
-        {
-          method: "DELETE",
-        }
-      ),
-    ]);
-
-    /* =========================================
-       DAILY REPORT
-    ========================================= */
-
-    const dailyReport = {
-      report_date: normalizedDate,
-
-      targets_hit:
-        Number(totals.targetsHit) || 0,
-
-      targets_destroyed:
-        Number(totals.targetsDestroyed) || 0,
-
-      strike_flights:
-        Number(totals.strikeFlights) || 0,
-
-      recon_flights:
-        Number(totals.reconFlights) || 0,
-
-      personnel:
-        Number(totals.personnel) || 0,
-
-      personnel_destroyed:
-        Number(totals.personnelDestroyed) || 0,
-
-      personnel_wounded:
-        Number(totals.personnelWounded) || 0,
-    };
+    /* Удаляем старые данные за эту дату */
 
     await supabaseRequest(
-      "daily_reports",
+      `daily_reports?report_date=eq.${encodedDate}`,
       {
-        method: "POST",
-        body: JSON.stringify(dailyReport),
+        method: "DELETE",
       }
     );
 
-    /* =========================================
-       CATEGORIES
-    ========================================= */
-
-    if (safeCategories.length > 0) {
-      const categoryRows = safeCategories
-        .filter((item) => item?.name)
-        .map((item) => ({
-          report_date: normalizedDate,
-
-          category: String(item.name),
-
-          hit:
-            Number(item.hit) || 0,
-
-          destroyed:
-            Number(item.destroyed) || 0,
-        }));
-
-      if (categoryRows.length > 0) {
-        await supabaseRequest(
-          "report_categories",
-          {
-            method: "POST",
-            body: JSON.stringify(categoryRows),
-          }
-        );
+    await supabaseRequest(
+      `report_categories?report_date=eq.${encodedDate}`,
+      {
+        method: "DELETE",
       }
+    );
+
+    await supabaseRequest(
+      `operational_updates?report_date=eq.${encodedDate}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    /* Основной отчёт */
+
+    await supabaseRequest("daily_reports", {
+      method: "POST",
+
+      body: JSON.stringify([
+        {
+          report_date: reportDate,
+
+          targets_hit: toNumber(
+            req.body?.targetsHit
+          ),
+
+          targets_destroyed: toNumber(
+            req.body?.targetsDestroyed
+          ),
+
+          strike_flights: toNumber(
+            req.body?.strikeFlights
+          ),
+
+          recon_flights: toNumber(
+            req.body?.reconFlights
+          ),
+
+          personnel: toNumber(
+            req.body?.personnel
+          ),
+
+          personnel_destroyed: toNumber(
+            req.body?.personnelDestroyed
+          ),
+
+          personnel_wounded: toNumber(
+            req.body?.personnelWounded
+          ),
+        },
+      ]),
+    });
+
+    /* Категории */
+
+    const categoryRows = categories
+      .map((item) => ({
+        report_date: reportDate,
+
+        category: String(
+          item?.name ||
+          item?.category ||
+          ""
+        ).trim(),
+
+        hit: toNumber(item?.hit),
+
+        destroyed: toNumber(
+          item?.destroyed
+        ),
+      }))
+      .filter((item) => item.category);
+
+    if (categoryRows.length > 0) {
+      await supabaseRequest(
+        "report_categories",
+        {
+          method: "POST",
+          body: JSON.stringify(categoryRows),
+        }
+      );
     }
 
-    /* =========================================
-       OPERATIONAL UPDATES
-    ========================================= */
+    /* Оперативные обновления */
 
-    if (safeUpdates.length > 0) {
-      const updateRows = safeUpdates
-        .filter((item) => item?.title)
-        .map((item) => ({
-          report_date:
-            normalizeDate(item.date) ||
-            normalizedDate,
+    const updateRows = updates
+      .map((item) => ({
+        report_date:
+          normalizeDate(
+            item?.date ||
+            item?.reportDate
+          ) || reportDate,
 
-          title:
-            String(item.title),
+        title: String(
+          item?.title || ""
+        ).trim(),
 
-          description:
-            item.description
-              ? String(item.description)
-              : "",
+        description: String(
+          item?.description || ""
+        ).trim(),
 
-          is_new:
-            Boolean(item.isNew),
-        }));
+        is_new: Boolean(
+          item?.isNew ??
+          item?.is_new
+        ),
+      }))
+      .filter((item) => item.title);
 
-      if (updateRows.length > 0) {
-        await supabaseRequest(
-          "operational_updates",
-          {
-            method: "POST",
-            body: JSON.stringify(updateRows),
-          }
-        );
-      }
+    if (updateRows.length > 0) {
+      await supabaseRequest(
+        "operational_updates",
+        {
+          method: "POST",
+          body: JSON.stringify(updateRows),
+        }
+      );
     }
 
     return res.status(200).json({
-      success: true,
-      reportDate: normalizedDate,
-      categoriesSaved: safeCategories.length,
-      updatesSaved: safeUpdates.length,
+      ok: true,
+      reportDate,
+      message:
+        `Дані за ${reportDate} успішно оновлено`,
     });
   } catch (error) {
     console.error(
-      "IMPORT REPORT ERROR:",
+      "Import report error:",
       error
     );
 
     return res.status(500).json({
-      error: "Failed to import report",
-      message: error.message,
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Помилка імпорту звіту",
     });
   }
 }

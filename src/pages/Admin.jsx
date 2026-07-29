@@ -1,215 +1,188 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
-function Admin() {
-  const [fileName, setFileName] = useState("");
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
+/* =========================================
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+========================================= */
 
-  async function handleFile(event) {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    setFileName(file.name);
-    setStatus("Файл обрано");
+function toNumber(value) {
+  if (value === null || value === undefined || value === "") {
+    return 0;
   }
 
-  async function uploadExcel(event) {
-    event.preventDefault();
+  const normalized = String(value)
+    .trim()
+    .replace(",", ".");
 
-    const input = document.getElementById("excel-file");
-    const file = input?.files?.[0];
+  const number = Number(normalized);
 
-    if (!file) {
-      setStatus("Спочатку обери Excel-файл");
-      return;
-    }
+  return Number.isFinite(number) ? number : 0;
+}
 
-    try {
-      setLoading(true);
-      setStatus("Читаємо Excel...");
+function toYesNo(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase();
+}
 
-      const buffer = await file.arrayBuffer();
-
-      const workbook = XLSX.read(buffer, {
-        type: "array",
-        cellDates: true,
-      });
-
-      const reportSheet =
-        workbook.Sheets["Щоденний звіт"];
-
-      const updatesSheet =
-        workbook.Sheets["Оперативні оновлення"];
-
-      if (!reportSheet) {
-        throw new Error(
-          'Не знайдено аркуш "Щоденний звіт"'
-        );
-      }
-
-      const reportRows = XLSX.utils.sheet_to_json(
-        reportSheet,
-        {
-          header: 1,
-          defval: "",
-        }
-      );
-
-      const rawReportDate = reportRows?.[2]?.[1] || null;
-
-function excelDateToLocalString(value) {
-  if (!value) return null;
+function toYMD(value) {
+  if (!value) {
+    return null;
+  }
 
   if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) {
+      return null;
+    }
+
     const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, "0");
-    const day = String(value.getDate()).padStart(2, "0");
+
+    const month = String(
+      value.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      value.getDate()
+    ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   }
 
-  return String(value);
+  if (typeof value === "number") {
+    const parsed =
+      XLSX.SSF.parse_date_code(value);
+
+    if (parsed) {
+      const year = parsed.y;
+
+      const month = String(
+        parsed.m
+      ).padStart(2, "0");
+
+      const day = String(
+        parsed.d
+      ).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    }
+  }
+
+  const text = String(value).trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    return text;
+  }
+
+  const ukrainianDate = text.match(
+    /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/
+  );
+
+  if (ukrainianDate) {
+    const [, dayValue, monthValue, year] =
+      ukrainianDate;
+
+    const day = dayValue.padStart(2, "0");
+    const month = monthValue.padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
+  return null;
 }
 
-const reportDate = excelDateToLocalString(rawReportDate);
+/* =========================================
+   СТРАНИЦА
+========================================= */
 
-      const strikeFlights =
-        Number(reportRows?.[3]?.[1] || 0);
+function Admin() {
+  const [checkingSession, setCheckingSession] =
+    useState(true);
 
-      const reconFlights =
-        Number(reportRows?.[4]?.[1] || 0);
+  const [authenticated, setAuthenticated] =
+    useState(false);
 
-      const personnel =
-        Number(reportRows?.[3]?.[3] || 0);
+  const [password, setPassword] =
+    useState("");
 
-      const personnelDestroyed =
-        Number(reportRows?.[3]?.[4] || 0);
+  const [loginStatus, setLoginStatus] =
+    useState("");
 
-      const personnelWounded =
-        Number(reportRows?.[3]?.[5] || 0);
+  const [loginLoading, setLoginLoading] =
+    useState(false);
 
-      const categories = [];
+  const [selectedFile, setSelectedFile] =
+    useState(null);
 
-      for (
-        let rowIndex = 8;
-        rowIndex < reportRows.length;
-        rowIndex++
-      ) {
-        const row = reportRows[rowIndex];
+  const [uploadStatus, setUploadStatus] =
+    useState("");
 
-        if (!row) continue;
+  const [uploadLoading, setUploadLoading] =
+    useState(false);
 
-        const name = row[0];
+  /* =========================================
+     ПРОВЕРКА СЕССИИ
+  ========================================= */
 
-        if (!name) continue;
-
-        if (
-          name === "ПІДСУМОК" ||
-          name === "Усі категорії"
-        ) {
-          continue;
-        }
-
-        const hit = Number(row[1] || 0);
-        const destroyed = Number(row[2] || 0);
-
-        categories.push({
-          name,
-          hit,
-          destroyed,
-        });
-      }
-
-      const targetsHit = categories.reduce(
-        (sum, item) => sum + item.hit,
-        0
-      );
-
-      const targetsDestroyed = categories.reduce(
-        (sum, item) => sum + item.destroyed,
-        0
-      );
-
-      let updates = [];
-
-      if (updatesSheet) {
-        const updateRows =
-          XLSX.utils.sheet_to_json(
-            updatesSheet,
-            {
-              header: 1,
-              defval: "",
-            }
-          );
-
-        for (
-          let rowIndex = 3;
-          rowIndex < updateRows.length;
-          rowIndex++
-        ) {
-          const row = updateRows[rowIndex];
-
-          if (!row || !row[0] || !row[1]) {
-            continue;
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const response = await fetch(
+          "/api/admin-session",
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              Accept: "application/json",
+            },
           }
-
-          const showOnSite =
-            String(row[5] || "")
-              .trim()
-              .toUpperCase();
-
-          if (showOnSite === "НІ") {
-            continue;
-          }
-
-          updates.push({
-  date: excelDateToLocalString(row[0]),
-  title: row[1],
-            description: row[2] || "",
-            isNew:
-              String(row[3] || "")
-                .trim()
-                .toUpperCase() === "ТАК",
-            order: Number(row[4] || 999),
-          });
-        }
-
-        updates.sort(
-          (a, b) => a.order - b.order
         );
+
+        setAuthenticated(response.ok);
+      } catch (error) {
+        console.error(
+          "Session check error:",
+          error
+        );
+
+        setAuthenticated(false);
+      } finally {
+        setCheckingSession(false);
       }
+    }
 
-      const payload = {
-        reportDate,
+    checkSession();
+  }, []);
 
-        totals: {
-          targetsHit,
-          targetsDestroyed,
-          strikeFlights,
-          reconFlights,
-          personnel,
-          personnelDestroyed,
-          personnelWounded,
-        },
+  /* =========================================
+     ВХОД
+  ========================================= */
 
-        categories,
-        updates,
-      };
+  async function handleLogin(event) {
+    event.preventDefault();
 
-      setStatus("Відправляємо дані на сервер...");
+    if (!password.trim()) {
+      setLoginStatus("Введіть пароль");
+      return;
+    }
 
+    setLoginLoading(true);
+    setLoginStatus("Перевірка пароля...");
+
+    try {
       const response = await fetch(
-        "/api/import-report",
+        "/api/admin-login",
         {
           method: "POST",
+          credentials: "include",
 
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
 
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            password,
+          }),
         }
       );
 
@@ -217,172 +190,597 @@ const reportDate = excelDateToLocalString(rawReportDate);
 
       if (!response.ok) {
         throw new Error(
-          result?.message ||
+          result?.error || "Помилка входу"
+        );
+      }
+
+      setAuthenticated(true);
+      setPassword("");
+      setLoginStatus("");
+    } catch (error) {
+      setLoginStatus(
+        error instanceof Error
+          ? error.message
+          : "Помилка входу"
+      );
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  /* =========================================
+     ЧТЕНИЕ EXCEL
+  ========================================= */
+
+  async function readExcelFile(file) {
+    const arrayBuffer =
+      await file.arrayBuffer();
+
+    const workbook = XLSX.read(
+      arrayBuffer,
+      {
+        type: "array",
+        cellDates: false,
+      }
+    );
+
+    const reportSheet =
+      workbook.Sheets["Щоденний звіт"];
+
+    const updatesSheet =
+      workbook.Sheets[
+        "Оперативні оновлення"
+      ];
+
+    if (!reportSheet) {
+      throw new Error(
+        'Не знайдено аркуш "Щоденний звіт"'
+      );
+    }
+
+    const reportRows =
+      XLSX.utils.sheet_to_json(
+        reportSheet,
+        {
+          header: 1,
+          defval: "",
+          raw: true,
+        }
+      );
+
+    const reportDate = toYMD(
+      reportRows?.[2]?.[1]
+    );
+
+    if (!reportDate) {
+      throw new Error(
+        "Не вдалося прочитати дату звіту з клітинки B3"
+      );
+    }
+
+    const strikeFlights = toNumber(
+      reportRows?.[3]?.[1]
+    );
+
+    const reconFlights = toNumber(
+      reportRows?.[4]?.[1]
+    );
+
+    const personnel = toNumber(
+      reportRows?.[3]?.[3]
+    );
+
+    const personnelDestroyed = toNumber(
+      reportRows?.[3]?.[4]
+    );
+
+    const personnelWounded = toNumber(
+      reportRows?.[3]?.[5]
+    );
+
+    const categories = reportRows
+      .slice(8)
+      .map((row) => {
+        const name = String(
+          row?.[0] || ""
+        ).trim();
+
+        return {
+          name,
+          hit: toNumber(row?.[1]),
+          destroyed: toNumber(row?.[2]),
+        };
+      })
+      .filter((item) => {
+        const normalizedName =
+          item.name.toUpperCase();
+
+        return (
+          item.name &&
+          normalizedName !== "ПІДСУМОК" &&
+          normalizedName !== "УСІ КАТЕГОРІЇ"
+        );
+      });
+
+    const targetsHit = categories.reduce(
+      (sum, item) => sum + item.hit,
+      0
+    );
+
+    const targetsDestroyed =
+      categories.reduce(
+        (sum, item) =>
+          sum + item.destroyed,
+        0
+      );
+
+    let updates = [];
+
+    if (updatesSheet) {
+      const updateRows =
+        XLSX.utils.sheet_to_json(
+          updatesSheet,
+          {
+            header: 1,
+            defval: "",
+            raw: true,
+          }
+        );
+
+      updates = updateRows
+        .slice(3)
+        .map((row) => {
+          const title = String(
+            row?.[1] || ""
+          ).trim();
+
+          const description = String(
+            row?.[2] || ""
+          ).trim();
+
+          const newValue = toYesNo(
+            row?.[3]
+          );
+
+          const order = toNumber(
+            row?.[4]
+          );
+
+          const showValue = toYesNo(
+            row?.[5]
+          );
+
+          return {
+            date:
+              toYMD(row?.[0]) ||
+              reportDate,
+
+            title,
+            description,
+
+            isNew:
+              newValue === "ТАК" ||
+              newValue === "YES",
+
+            order,
+
+            show:
+              showValue !== "НІ" &&
+              showValue !== "NO",
+          };
+        })
+        .filter(
+          (item) =>
+            item.title && item.show
+        )
+        .sort(
+          (first, second) =>
+            first.order - second.order
+        )
+        .map(
+          ({
+            show,
+            order,
+            ...item
+          }) => item
+        );
+    }
+
+    return {
+      reportDate,
+      targetsHit,
+      targetsDestroyed,
+      strikeFlights,
+      reconFlights,
+      personnel,
+      personnelDestroyed,
+      personnelWounded,
+      categories,
+      updates,
+    };
+  }
+
+  /* =========================================
+     ЗАГРУЗКА НА САЙТ
+  ========================================= */
+
+  async function handleUpload() {
+    if (!selectedFile) {
+      setUploadStatus(
+        "Спочатку виберіть Excel-файл"
+      );
+
+      return;
+    }
+
+    setUploadLoading(true);
+    setUploadStatus(
+      "Читання та завантаження даних..."
+    );
+
+    try {
+      const reportData =
+        await readExcelFile(selectedFile);
+
+      const response = await fetch(
+        "/api/import-report",
+        {
+          method: "POST",
+          credentials: "include",
+
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+
+          body: JSON.stringify(
+            reportData
+          ),
+        }
+      );
+
+      const result =
+        await response.json();
+
+      if (response.status === 401) {
+        setAuthenticated(false);
+
+        throw new Error(
+          "Сесію завершено. Увійдіть повторно."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
             "Помилка завантаження"
         );
       }
 
-      setStatus(
+      setUploadStatus(
         `Готово. Дані за ${result.reportDate} оновлено.`
       );
-    } catch (error) {
-      console.error(error);
 
-      setStatus(
-        `Помилка: ${error.message}`
+      setSelectedFile(null);
+
+      const fileInput =
+        document.getElementById(
+          "excel-file"
+        );
+
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    } catch (error) {
+      console.error(
+        "Upload error:",
+        error
+      );
+
+      setUploadStatus(
+        error instanceof Error
+          ? error.message
+          : "Помилка завантаження"
       );
     } finally {
-      setLoading(false);
+      setUploadLoading(false);
     }
   }
 
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#050505",
-        color: "#fff",
-        padding: "40px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "760px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            marginBottom: "30px",
-          }}
-        >
-          <div
-            style={{
-              color: "#b83c31",
-              fontSize: "12px",
-              fontWeight: "900",
-              letterSpacing: "2px",
-            }}
-          >
-            ADMIN PANEL
-          </div>
+  /* =========================================
+     ЗАГРУЗКА СТРАНИЦЫ
+  ========================================= */
 
-          <h1
-            style={{
-              fontSize: "34px",
-              margin: "8px 0",
-            }}
-          >
-            ОНОВЛЕННЯ ЗВІТУ
-          </h1>
-
-          <p
-            style={{
-              color: "#8d928d",
-            }}
-          >
-            Завантаж Excel-файл зі щоденним
-            звітом.
+  if (checkingSession) {
+    return (
+      <main style={styles.page}>
+        <div style={styles.panel}>
+          <p style={styles.muted}>
+            Перевірка доступу...
           </p>
         </div>
+      </main>
+    );
+  }
 
+  /* =========================================
+     ФОРМА ВХОДА
+  ========================================= */
+
+  if (!authenticated) {
+    return (
+      <main style={styles.page}>
         <form
-          onSubmit={uploadExcel}
-          style={{
-            border:
-              "1px solid rgba(190,190,190,0.35)",
-            padding: "30px",
-            background:
-              "rgba(15,15,15,0.9)",
-          }}
+          style={styles.loginPanel}
+          onSubmit={handleLogin}
         >
-          <label
-            htmlFor="excel-file"
-            style={{
-              display: "block",
-              border:
-                "1px dashed rgba(190,190,190,0.5)",
-              padding: "50px 20px",
-              textAlign: "center",
-              cursor: "pointer",
-              marginBottom: "20px",
-            }}
-          >
-            <strong
-              style={{
-                display: "block",
-                marginBottom: "8px",
-              }}
-            >
-              {fileName ||
-                "ОБЕРИ EXCEL-ФАЙЛ"}
-            </strong>
+          <div style={styles.number}>
+            ADMIN
+          </div>
 
-            <span
-              style={{
-                color: "#777",
-                fontSize: "13px",
-              }}
-            >
-              .xlsx
-            </span>
-          </label>
+          <h1 style={styles.title}>
+            Вхід до панелі
+          </h1>
+
+          <p style={styles.muted}>
+            Введіть пароль адміністратора
+          </p>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(event) =>
+              setPassword(
+                event.target.value
+              )
+            }
+            placeholder="Пароль"
+            autoComplete="current-password"
+            style={styles.input}
+            disabled={loginLoading}
+          />
+
+          <button
+            type="submit"
+            style={styles.button}
+            disabled={loginLoading}
+          >
+            {loginLoading
+              ? "ПЕРЕВІРКА..."
+              : "УВІЙТИ"}
+          </button>
+
+          {loginStatus && (
+            <p style={styles.status}>
+              {loginStatus}
+            </p>
+          )}
+
+          <a
+            href="/"
+            style={styles.backLink}
+          >
+            ← Повернутися на сайт
+          </a>
+        </form>
+      </main>
+    );
+  }
+
+  /* =========================================
+     АДМИН-ПАНЕЛЬ
+  ========================================= */
+
+  return (
+    <main style={styles.page}>
+      <section style={styles.panel}>
+        <div style={styles.number}>
+          ADMIN PANEL
+        </div>
+
+        <h1 style={styles.title}>
+          Завантаження звіту
+        </h1>
+
+        <p style={styles.muted}>
+          Завантажте готовий Excel-файл.
+          Дані за обрану дату будуть
+          оновлені на сайті.
+        </p>
+
+        <label style={styles.fileBox}>
+          <span style={styles.fileTitle}>
+            ВИБРАТИ EXCEL-ФАЙЛ
+          </span>
+
+          <span style={styles.fileName}>
+            {selectedFile
+              ? selectedFile.name
+              : "Файл не вибрано"}
+          </span>
 
           <input
             id="excel-file"
             type="file"
             accept=".xlsx,.xls"
-            onChange={handleFile}
-            style={{
-              display: "none",
+            style={{ display: "none" }}
+            onChange={(event) => {
+              setSelectedFile(
+                event.target.files?.[0] ||
+                  null
+              );
+
+              setUploadStatus("");
             }}
           />
+        </label>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              height: "52px",
-              border: "1px solid #b83c31",
-              background: loading
-                ? "#333"
-                : "#b83c31",
-              color: "#fff",
-              fontSize: "14px",
-              fontWeight: "900",
-              letterSpacing: "1px",
-              cursor: loading
-                ? "not-allowed"
-                : "pointer",
-            }}
-          >
-            {loading
-              ? "ОБРОБКА..."
-              : "ЗАВАНТАЖИТИ НА САЙТ"}
-          </button>
+        <button
+          type="button"
+          onClick={handleUpload}
+          style={styles.button}
+          disabled={uploadLoading}
+        >
+          {uploadLoading
+            ? "ЗАВАНТАЖЕННЯ..."
+            : "ЗАВАНТАЖИТИ НА САЙТ"}
+        </button>
 
-          {status && (
-            <div
-              style={{
-                marginTop: "18px",
-                padding: "14px",
-                background:
-                  "rgba(255,255,255,0.04)",
-                borderLeft:
-                  "3px solid #b83c31",
-                color: "#d7dad5",
-                fontSize: "13px",
-              }}
-            >
-              {status}
-            </div>
-          )}
-        </form>
-      </div>
+        {uploadStatus && (
+          <p style={styles.status}>
+            {uploadStatus}
+          </p>
+        )}
+
+        <a
+          href="/"
+          style={styles.backLink}
+        >
+          ← Відкрити сайт
+        </a>
+      </section>
     </main>
   );
 }
+
+/* =========================================
+   СТИЛИ
+========================================= */
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "24px",
+    background:
+      "radial-gradient(circle at top, #12333a 0%, #050808 50%, #020303 100%)",
+    color: "#f2f3ef",
+    fontFamily:
+      "Arial, Helvetica, sans-serif",
+  },
+
+  panel: {
+    width: "100%",
+    maxWidth: "620px",
+    padding: "38px",
+    background:
+      "rgba(5, 9, 9, 0.94)",
+    border:
+      "1px solid rgba(180, 185, 180, 0.38)",
+    borderTop: "3px solid #d84034",
+    boxShadow:
+      "0 20px 60px rgba(0, 0, 0, 0.65)",
+  },
+
+  loginPanel: {
+    width: "100%",
+    maxWidth: "460px",
+    padding: "38px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+    background:
+      "rgba(5, 9, 9, 0.96)",
+    border:
+      "1px solid rgba(180, 185, 180, 0.38)",
+    borderTop: "3px solid #d84034",
+    boxShadow:
+      "0 20px 60px rgba(0, 0, 0, 0.65)",
+  },
+
+  number: {
+    color: "#d84034",
+    fontSize: "12px",
+    fontWeight: "900",
+    letterSpacing: "2px",
+  },
+
+  title: {
+    margin: "0",
+    fontSize: "34px",
+    lineHeight: "1.05",
+    textTransform: "uppercase",
+  },
+
+  muted: {
+    margin: "0",
+    color: "#9ca29d",
+    fontSize: "14px",
+    lineHeight: "1.6",
+  },
+
+  input: {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "15px 16px",
+    border:
+      "1px solid rgba(180, 185, 180, 0.38)",
+    background: "#090d0d",
+    color: "#ffffff",
+    fontSize: "16px",
+    outline: "none",
+  },
+
+  fileBox: {
+    marginTop: "24px",
+    minHeight: "110px",
+    padding: "20px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: "10px",
+    cursor: "pointer",
+    background:
+      "rgba(255, 255, 255, 0.025)",
+    border:
+      "1px dashed rgba(216, 64, 52, 0.7)",
+  },
+
+  fileTitle: {
+    color: "#d84034",
+    fontSize: "13px",
+    fontWeight: "900",
+    letterSpacing: "1px",
+  },
+
+  fileName: {
+    color: "#d8dad6",
+    fontSize: "14px",
+    wordBreak: "break-word",
+  },
+
+  button: {
+    width: "100%",
+    marginTop: "6px",
+    padding: "16px",
+    cursor: "pointer",
+    border: "1px solid #d84034",
+    background: "#d84034",
+    color: "#ffffff",
+    fontSize: "13px",
+    fontWeight: "900",
+    letterSpacing: "1px",
+  },
+
+  status: {
+    margin: "0",
+    padding: "13px",
+    background:
+      "rgba(216, 64, 52, 0.1)",
+    borderLeft: "3px solid #d84034",
+    color: "#e8e9e5",
+    fontSize: "14px",
+    lineHeight: "1.5",
+  },
+
+  backLink: {
+    marginTop: "8px",
+    color: "#9ca29d",
+    fontSize: "13px",
+    textDecoration: "none",
+  },
+};
 
 export default Admin;
