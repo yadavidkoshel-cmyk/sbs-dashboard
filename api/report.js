@@ -2,7 +2,6 @@ const ALLOWED_PERIODS = [
   "today",
   "week",
   "month",
-  "all",
 ];
 
 function toNumber(value) {
@@ -13,8 +12,16 @@ function toNumber(value) {
     : 0;
 }
 
+function validMonth(value) {
+  return /^\d{4}-\d{2}$/.test(
+    String(value || "")
+  );
+}
+
 function parseDate(value) {
-  return new Date(`${value}T00:00:00.000Z`);
+  return new Date(
+    `${value}T00:00:00.000Z`
+  );
 }
 
 function formatDate(date) {
@@ -29,6 +36,32 @@ function formatDate(date) {
   ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+function getMonthRange(monthValue) {
+  const [yearValue, monthNumber] =
+    monthValue.split("-").map(Number);
+
+  const firstDay = new Date(
+    Date.UTC(
+      yearValue,
+      monthNumber - 1,
+      1
+    )
+  );
+
+  const lastDay = new Date(
+    Date.UTC(
+      yearValue,
+      monthNumber,
+      0
+    )
+  );
+
+  return {
+    from: formatDate(firstDay),
+    to: formatDate(lastDay),
+  };
 }
 
 async function supabaseGet(path) {
@@ -68,10 +101,6 @@ async function supabaseGet(path) {
   return response.json();
 }
 
-/* =========================================
-   ПОСЛЕДНЯЯ ЗАГРУЖЕННАЯ ДАТА
-========================================= */
-
 async function getLatestReportDate() {
   const rows = await supabaseGet(
     "daily_reports" +
@@ -83,35 +112,28 @@ async function getLatestReportDate() {
   return rows?.[0]?.report_date || null;
 }
 
-/* =========================================
-   ДИАПАЗОН
-========================================= */
+function getDateRange(
+  period,
+  latestDate,
+  selectedMonth
+) {
+  if (period === "month") {
+    const monthValue = validMonth(
+      selectedMonth
+    )
+      ? selectedMonth
+      : latestDate.slice(0, 7);
 
-function getDateRange(period, latestDate) {
-  if (!latestDate) {
     return {
-      from: null,
-      to: null,
+      ...getMonthRange(monthValue),
+      month: monthValue,
     };
   }
-
-  if (period === "all") {
-    return {
-      from: null,
-      to: null,
-    };
-  }
-
-  if (period === "today") {
-    return {
-      from: latestDate,
-      to: latestDate,
-    };
-  }
-
-  const endDate = parseDate(latestDate);
 
   if (period === "week") {
+    const endDate =
+      parseDate(latestDate);
+
     const startDate =
       new Date(endDate);
 
@@ -122,41 +144,18 @@ function getDateRange(period, latestDate) {
     return {
       from: formatDate(startDate),
       to: latestDate,
-    };
-  }
-
-  if (period === "month") {
-    const year =
-      endDate.getUTCFullYear();
-
-    const month =
-      endDate.getUTCMonth();
-
-    const startDate = new Date(
-      Date.UTC(year, month, 1)
-    );
-
-    const lastDate = new Date(
-      Date.UTC(year, month + 1, 0)
-    );
-
-    return {
-      from: formatDate(startDate),
-      to: formatDate(lastDate),
+      month: null,
     };
   }
 
   return {
     from: latestDate,
     to: latestDate,
+    month: null,
   };
 }
 
 function createDateFilter(range) {
-  if (!range.from || !range.to) {
-    return "";
-  }
-
   if (range.from === range.to) {
     return (
       `&report_date=eq.${range.from}`
@@ -169,38 +168,17 @@ function createDateFilter(range) {
   );
 }
 
-/* =========================================
-   ПУСТОЙ ОТВЕТ
-========================================= */
-
-function createEmptyResponse(period) {
+function emptyTotals() {
   return {
-    period,
-    reportDate: null,
-
-    range: {
-      from: null,
-      to: null,
-    },
-
-    totals: {
-      targetsHit: 0,
-      targetsDestroyed: 0,
-      strikeFlights: 0,
-      reconFlights: 0,
-      personnel: 0,
-      personnelDestroyed: 0,
-      personnelWounded: 0,
-    },
-
-    categories: [],
-    updates: [],
+    targetsHit: 0,
+    targetsDestroyed: 0,
+    strikeFlights: 0,
+    reconFlights: 0,
+    personnel: 0,
+    personnelDestroyed: 0,
+    personnelWounded: 0,
   };
 }
-
-/* =========================================
-   API
-========================================= */
 
 export default async function handler(
   req,
@@ -220,10 +198,9 @@ export default async function handler(
   }
 
   try {
-    const requestedPeriod =
-      String(
-        req.query?.period || "today"
-      ).toLowerCase();
+    const requestedPeriod = String(
+      req.query?.period || "today"
+    ).toLowerCase();
 
     const period =
       ALLOWED_PERIODS.includes(
@@ -232,20 +209,32 @@ export default async function handler(
         ? requestedPeriod
         : "today";
 
+    const selectedMonth = String(
+      req.query?.month || ""
+    );
+
     const latestDate =
       await getLatestReportDate();
 
     if (!latestDate) {
-      return res
-        .status(200)
-        .json(
-          createEmptyResponse(period)
-        );
+      return res.status(200).json({
+        period,
+        reportDate: null,
+        selectedMonth: null,
+        range: {
+          from: null,
+          to: null,
+        },
+        totals: emptyTotals(),
+        categories: [],
+        updates: [],
+      });
     }
 
     const range = getDateRange(
       period,
-      latestDate
+      latestDate,
+      selectedMonth
     );
 
     const dateFilter =
@@ -277,10 +266,6 @@ export default async function handler(
           "&order=report_date.desc,id.asc"
       ),
     ]);
-
-    /* =====================================
-       ОБЩИЕ ПОКАЗАТЕЛИ
-    ===================================== */
 
     const totals = dailyReports.reduce(
       (result, row) => {
@@ -317,20 +302,8 @@ export default async function handler(
 
         return result;
       },
-      {
-        targetsHit: 0,
-        targetsDestroyed: 0,
-        strikeFlights: 0,
-        reconFlights: 0,
-        personnel: 0,
-        personnelDestroyed: 0,
-        personnelWounded: 0,
-      }
+      emptyTotals()
     );
-
-    /* =====================================
-       КАТЕГОРИИ
-    ===================================== */
 
     const categoryMap = new Map();
 
@@ -343,34 +316,30 @@ export default async function handler(
         continue;
       }
 
-      const previous =
+      const current =
         categoryMap.get(name) || {
           name,
           hit: 0,
           destroyed: 0,
         };
 
-      previous.hit += toNumber(
+      current.hit += toNumber(
         row.hit
       );
 
-      previous.destroyed += toNumber(
+      current.destroyed += toNumber(
         row.destroyed
       );
 
       categoryMap.set(
         name,
-        previous
+        current
       );
     }
 
     const categories = Array.from(
       categoryMap.values()
     );
-
-    /* =====================================
-       ОПЕРАТИВНЫЕ ОБНОВЛЕНИЯ
-    ===================================== */
 
     const updates = updateRows
       .map((row) => ({
@@ -388,17 +357,32 @@ export default async function handler(
       }))
       .filter((item) => item.title);
 
+    const displayedReportDate =
+      dailyReports.length > 0
+        ? dailyReports[
+            dailyReports.length - 1
+          ].report_date
+        : null;
+
     return res.status(200).json({
       period,
 
-      reportDate: latestDate,
+      reportDate:
+        displayedReportDate,
 
-      range,
+      latestReportDate:
+        latestDate,
+
+      selectedMonth:
+        range.month,
+
+      range: {
+        from: range.from,
+        to: range.to,
+      },
 
       totals,
-
       categories,
-
       updates,
     });
   } catch (error) {

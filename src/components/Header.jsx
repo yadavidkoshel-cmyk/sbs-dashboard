@@ -1,132 +1,194 @@
-import { useEffect, useState } from "react";
-import { FaClock, FaChevronDown } from "react-icons/fa";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  FaClock,
+  FaCalendarAlt,
+} from "react-icons/fa";
+
+import {
+  formatReportDate,
+} from "../services/reportService";
+
 import "../styles/Header.css";
 
-function Header() {
-  const [now, setNow] = useState(new Date());
+const tickerUnits = [
+  "RAROG",
+  "6ББпАК",
+  "RAROG",
+  "6ББпАК",
+  "RAROG",
+  "6ББпАК",
+  "RAROG",
+  "6ББпАК",
+  "RAROG",
+  "6ББпАК",
+];
+
+function Header({
+  selectedPeriod,
+  onPeriodChange,
+  selectedMonth,
+  onMonthChange,
+  reportDate,
+}) {
+  const [currentTime, setCurrentTime] =
+    useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date());
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  const time = now.toLocaleTimeString("uk-UA", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const timeText =
+    currentTime.toLocaleTimeString(
+      "uk-UA",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }
+    );
 
-  const date = now.toLocaleDateString("uk-UA", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const units = [
-    "6ББпАК",
-    "RAROG",
-    "6ББпАК",
-    "RAROG",
-    "6ББпАК",
-    "RAROG",
-    "6ББпАК",
-    "RAROG",
-  ];
+  const dateText =
+    currentTime.toLocaleDateString(
+      "uk-UA",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }
+    );
 
   return (
     <>
       <div className="unit-ticker">
         <div className="ticker-track">
-          {[...units, ...units].map((unit, index) => (
-            <div
-              className={`ticker-item ${
-                unit === "RAROG"
-                  ? "ticker-rarog"
-                  : "ticker-6bbpak"
-              }`}
-              key={index}
-            >
-              <span className="ticker-symbol">
-                ◆
-              </span>
+          {tickerUnits.map(
+            (unit, index) => (
+              <div
+                className={`ticker-item ${
+                  unit === "RAROG"
+                    ? "ticker-rarog"
+                    : "ticker-6bbpak"
+                }`}
+                key={`${unit}-${index}`}
+              >
+                <span className="ticker-dot">
+                  ◆
+                </span>
 
-              <span className="ticker-text">
                 {unit}
-              </span>
-            </div>
-          ))}
+              </div>
+            )
+          )}
         </div>
       </div>
 
       <header className="report-header">
-
-        <section className="report-brand">
-
-          <div className="report-back">
-            ❮
-          </div>
-
+        <div className="report-brand">
           <div className="report-emblem">
-            ◆
+            R
           </div>
 
-          <div className="report-title">
+          <div>
+            <div className="report-kicker">
+              ЩОДЕННИЙ ЗВІТ
+            </div>
 
-            <span className="report-title-white">
-              ЗВІТ
-            </span>
-
-            <span className="report-title-orange">
+            <h1 className="report-title">
               427 РАРОГ
-            </span>
+            </h1>
 
+            <div className="report-date">
+              Дані станом на:{" "}
+              <strong>
+                {formatReportDate(
+                  reportDate
+                )}
+              </strong>
+            </div>
           </div>
+        </div>
 
-        </section>
-
-        <section className="report-controls">
-
-          <div className="report-control time-control">
-
-            <FaClock className="control-icon" />
+        <div className="report-controls">
+          <div className="clock-box">
+            <FaClock />
 
             <div>
-
-              <div className="control-time">
-                {time}
-              </div>
-
-              <div className="control-date">
-                {date}
-              </div>
-
+              <strong>{timeText}</strong>
+              <span>{dateText}</span>
             </div>
-
           </div>
 
-          <div className="report-control">
+          <label className="month-picker">
+            <span>
+              <FaCalendarAlt />
+              ВИБРАТИ МІСЯЦЬ
+            </span>
 
-            <div className="control-main">
-              Липень
-            </div>
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(event) =>
+                onMonthChange(
+                  event.target.value
+                )
+              }
+            />
+          </label>
 
+          <div className="period-buttons">
+            <button
+              type="button"
+              className={
+                selectedPeriod === "today"
+                  ? "period-button active"
+                  : "period-button"
+              }
+              onClick={() =>
+                onPeriodChange("today")
+              }
+            >
+              СЬОГОДНІ
+            </button>
+
+            <button
+              type="button"
+              className={
+                selectedPeriod === "week"
+                  ? "period-button active"
+                  : "period-button"
+              }
+              onClick={() =>
+                onPeriodChange("week")
+              }
+            >
+              ЗА ТИЖДЕНЬ
+            </button>
+
+            <button
+              type="button"
+              className={
+                selectedPeriod === "month"
+                  ? "period-button active"
+                  : "period-button"
+              }
+              onClick={() =>
+                onPeriodChange("month")
+              }
+            >
+              ЗА МІСЯЦЬ
+            </button>
           </div>
-
-          <div className="report-control period-control">
-
-            <div className="control-main">
-              Сьогодні
-            </div>
-
-            <FaChevronDown className="period-arrow" />
-
-          </div>
-
-        </section>
-
+        </div>
       </header>
     </>
   );

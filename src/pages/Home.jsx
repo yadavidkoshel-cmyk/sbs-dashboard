@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import Header from "../components/Header";
 import Tables from "../components/Tables";
@@ -27,6 +30,18 @@ const EMPTY_REPORT = {
   updates: [],
 };
 
+function getCurrentMonth() {
+  const date = new Date();
+
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  return `${year}-${month}`;
+}
+
 function Home() {
   const [report, setReport] =
     useState(EMPTY_REPORT);
@@ -34,45 +49,64 @@ function Home() {
   const [loading, setLoading] =
     useState(true);
 
+  const [
+    selectedPeriod,
+    setSelectedPeriod,
+  ] = useState("today");
+
+  const [
+    selectedMonth,
+    setSelectedMonth,
+  ] = useState(getCurrentMonth());
+
   useEffect(() => {
     let componentIsActive = true;
+    let requestIsRunning = false;
     let currentController = null;
 
     async function loadReport() {
       if (
-        document.visibilityState === "hidden"
+        document.visibilityState ===
+        "hidden"
       ) {
         return;
       }
 
-      if (currentController) {
-        currentController.abort();
+      if (requestIsRunning) {
+        return;
       }
 
+      requestIsRunning = true;
       currentController =
         new AbortController();
 
-      const freshReport =
-        await getReportData(
-          "today",
-          currentController.signal
-        );
+      try {
+        const freshReport =
+          await getReportData(
+            selectedPeriod,
+            selectedMonth,
+            currentController.signal
+          );
 
-      if (
-        componentIsActive &&
-        freshReport
-      ) {
-        setReport(freshReport);
-      }
+        if (
+          componentIsActive &&
+          freshReport
+        ) {
+          setReport(freshReport);
+        }
+      } finally {
+        requestIsRunning = false;
 
-      if (componentIsActive) {
-        setLoading(false);
+        if (componentIsActive) {
+          setLoading(false);
+        }
       }
     }
 
     function handleVisibilityChange() {
       if (
-        document.visibilityState === "visible"
+        document.visibilityState ===
+        "visible"
       ) {
         loadReport();
       }
@@ -104,22 +138,40 @@ function Home() {
         currentController.abort();
       }
     };
-  }, []);
+  }, [
+    selectedPeriod,
+    selectedMonth,
+  ]);
+
+  function handlePeriodChange(period) {
+    setLoading(true);
+    setSelectedPeriod(period);
+  }
+
+  function handleMonthChange(month) {
+    if (!month) {
+      return;
+    }
+
+    setLoading(true);
+    setSelectedMonth(month);
+    setSelectedPeriod("month");
+  }
 
   const totals =
     report?.totals ||
     EMPTY_REPORT.totals;
 
-  const updates = Array.isArray(
-    report?.updates
-  )
-    ? report.updates
-    : [];
-
   const categories = Array.isArray(
     report?.categories
   )
     ? report.categories
+    : [];
+
+  const updates = Array.isArray(
+    report?.updates
+  )
+    ? report.updates
     : [];
 
   function showValue(value) {
@@ -136,7 +188,6 @@ function Home() {
 
   return (
     <main className="dashboard">
-      {/* Размытый фон по краям */}
       <video
         className="background-video-blur"
         autoPlay
@@ -150,7 +201,6 @@ function Home() {
         />
       </video>
 
-      {/* Основное видео */}
       <video
         className="background-video-main"
         autoPlay
@@ -167,9 +217,24 @@ function Home() {
       <div className="video-overlay" />
 
       <div className="dashboard-content">
-        <Header />
+        <Header
+          selectedPeriod={
+            selectedPeriod
+          }
+          onPeriodChange={
+            handlePeriodChange
+          }
+          selectedMonth={
+            selectedMonth
+          }
+          onMonthChange={
+            handleMonthChange
+          }
+          reportDate={
+            report?.reportDate
+          }
+        />
 
-        {/* Верхние показатели */}
         <section className="stats-row">
           <article className="stat-card">
             <div className="stat-part">
@@ -270,7 +335,6 @@ function Home() {
           </article>
         </section>
 
-        {/* Обновления и подразделения */}
         <section className="dashboard-info-grid">
           <article className="operations-box">
             <div className="section-heading">
@@ -316,7 +380,8 @@ function Home() {
                     <div className="operation-line" />
 
                     <div className="operation-text">
-                      Оновлень поки немає
+                      Оновлень за цей
+                      період немає
                     </div>
 
                     <div />
@@ -418,8 +483,9 @@ function Home() {
           </aside>
         </section>
 
-        {/* Нижние таблицы */}
-        <Tables categories={categories} />
+        <Tables
+          categories={categories}
+        />
       </div>
     </main>
   );

@@ -2,15 +2,24 @@ const API_URL = "/api/report";
 
 export async function getReportData(
   period = "today",
+  month = "",
   signal
 ) {
   try {
+    const params = new URLSearchParams({
+      period,
+      t: String(Date.now()),
+    });
+
+    if (period === "month" && month) {
+      params.set("month", month);
+    }
+
     const response = await fetch(
-      `${API_URL}?period=${period}&t=${Date.now()}`,
+      `${API_URL}?${params.toString()}`,
       {
         method: "GET",
         cache: "no-store",
-        credentials: "same-origin",
         signal,
 
         headers: {
@@ -43,7 +52,7 @@ export async function getReportData(
 
 export function formatReportDate(value) {
   if (!value) {
-    return "";
+    return "ДАНИХ НЕМАЄ";
   }
 
   const date = new Date(
@@ -51,13 +60,13 @@ export function formatReportDate(value) {
   );
 
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return "ДАНИХ НЕМАЄ";
   }
 
   return new Intl.DateTimeFormat(
     "uk-UA",
     {
-      day: "numeric",
+      day: "2-digit",
       month: "long",
       year: "numeric",
     }

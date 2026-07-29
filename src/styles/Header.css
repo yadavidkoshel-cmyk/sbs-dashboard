@@ -1,328 +1,288 @@
+/* =========================================
+   TICKER
+========================================= */
+
 .unit-ticker {
+  position: relative;
   width: 100%;
   height: 42px;
   overflow: hidden;
-  position: relative;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(5, 6, 6, 0.96),
-      rgba(2, 3, 3, 0.92)
-    );
-
-  border-top: 1px solid rgba(190, 195, 188, 0.25);
-  border-bottom: 1px solid rgba(190, 195, 188, 0.22);
-}
-
-.unit-ticker::before,
-.unit-ticker::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 100px;
-  height: 100%;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.unit-ticker::before {
-  left: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 1),
-    rgba(0, 0, 0, 0)
-  );
-}
-
-.unit-ticker::after {
-  right: 0;
-  background: linear-gradient(
-    270deg,
-    rgba(0, 0, 0, 1),
-    rgba(0, 0, 0, 0)
-  );
+  background: rgba(3, 5, 5, 0.94);
+  border-top: 1px solid rgba(190, 55, 43, 0.45);
+  border-bottom: 1px solid rgba(180, 185, 180, 0.25);
+  z-index: 6;
 }
 
 .ticker-track {
-  height: 100%;
   width: max-content;
-
+  height: 100%;
   display: flex;
   align-items: center;
-
-  gap: 42px;
-  padding-left: 20px;
-
-  animation: tickerMove 22s linear infinite;
+  animation: ticker-scroll 30s linear infinite;
 }
 
 .ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  white-space: nowrap;
-
-  font-family: "Arial Narrow", Arial, sans-serif;
-  font-size: 18px;
+  min-width: 180px;
+  padding: 0 30px;
+  font-size: 13px;
   font-weight: 900;
-
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-}
-
-.ticker-6bbpak {
-  color: #d7dad5;
+  letter-spacing: 2px;
+  text-align: center;
 }
 
 .ticker-rarog {
-  color: #d94233;
+  color: #d84034;
 }
 
-.ticker-symbol {
-  color: #b7372c;
+.ticker-6bbpak {
+  color: #d8dbd6;
+}
+
+.ticker-dot {
+  margin-right: 10px;
+  color: #666b66;
   font-size: 8px;
-  transform: rotate(45deg);
 }
 
-@keyframes tickerMove {
+@keyframes ticker-scroll {
   from {
-    transform: translateX(-50%);
+    transform: translateX(0);
   }
 
   to {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
 }
 
-.unit-ticker:hover .ticker-track {
-  animation-play-state: paused;
-}
-
-/* HEADER */
+/* =========================================
+   HEADER
+========================================= */
 
 .report-header {
-  width: 100%;
-  min-height: 92px;
-
+  position: relative;
+  z-index: 6;
+  min-height: 118px;
   display: grid;
-  grid-template-columns: 42% 58%;
-  align-items: center;
-
+  grid-template-columns:
+    minmax(360px, 0.9fr)
+    minmax(720px, 1.6fr);
+  gap: 18px;
+  padding: 16px 20px;
   background:
     linear-gradient(
       90deg,
-      rgba(6, 7, 7, 0.76),
-      rgba(3, 4, 4, 0.58)
+      rgba(5, 8, 8, 0.95),
+      rgba(7, 13, 14, 0.88)
     );
-
-  border-bottom: 1px solid rgba(170, 175, 168, 0.28);
-
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  border-bottom:
+    1px solid rgba(180, 185, 180, 0.3);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.38);
 }
+
+/* =========================================
+   BRAND
+========================================= */
 
 .report-brand {
+  min-width: 0;
   display: flex;
   align-items: center;
-  min-width: 0;
-  padding-left: 12px;
-}
-
-.report-back {
-  width: 24px;
-  color: #7d817c;
-  font-size: 28px;
-  line-height: 1;
+  gap: 16px;
 }
 
 .report-emblem {
-  width: 60px;
-  height: 60px;
-
+  width: 72px;
+  min-width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  margin-right: 12px;
-
-  border: 1px solid rgba(180, 185, 178, 0.26);
-
-  color: #e2e4df;
-  background: rgba(4, 5, 5, 0.48);
-
-  font-size: 28px;
+  border: 2px solid #d84034;
+  background:
+    radial-gradient(
+      circle,
+      rgba(216, 64, 52, 0.22),
+      rgba(0, 0, 0, 0.75)
+    );
+  color: #ffffff;
+  font-size: 34px;
   font-weight: 900;
+  box-shadow:
+    0 0 22px rgba(216, 64, 52, 0.18);
+}
+
+.report-kicker {
+  color: #d84034;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
 .report-title {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-
-  min-width: 0;
-  white-space: nowrap;
-
-  text-transform: uppercase;
-
-  font-family: "Arial Narrow", Arial, sans-serif;
+  margin: 3px 0;
+  color: #f0f1ed;
+  font-size: 31px;
   font-weight: 900;
-  letter-spacing: 0.6px;
+  line-height: 1;
+  letter-spacing: 1px;
 }
 
-.report-title-white {
-  color: #f0f2ed;
-  font-size: 42px;
+.report-date {
+  color: #929892;
+  font-size: 11px;
 }
 
-.report-title-orange {
-  color: #d64334;
-  font-size: 42px;
+.report-date strong {
+  color: #d8dbd6;
 }
+
+/* =========================================
+   CONTROLS
+========================================= */
 
 .report-controls {
+  min-width: 0;
   display: grid;
-
   grid-template-columns:
-    minmax(220px, 1fr)
-    minmax(220px, 1fr)
-    minmax(250px, 1.15fr);
-
-  gap: 10px;
-  padding-left: 10px;
+    170px
+    210px
+    minmax(350px, 1fr);
+  align-items: center;
+  gap: 12px;
 }
 
-.report-control {
-  position: relative;
-  min-height: 68px;
-
+.clock-box {
+  min-height: 67px;
   display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: rgba(0, 0, 0, 0.46);
+  border:
+    1px solid rgba(175, 180, 173, 0.3);
+  color: #d84034;
+}
+
+.clock-box > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clock-box strong {
+  color: #ffffff;
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.clock-box span {
+  color: #858b85;
+  font-size: 11px;
+}
+
+/* =========================================
+   MONTH
+========================================= */
+
+.month-picker {
+  min-height: 67px;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-
-  padding: 0 20px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(5, 7, 7, 0.78),
-      rgba(2, 3, 3, 0.68)
-    );
-
-  border: 1px solid rgba(175, 180, 173, 0.36);
-
-  color: #f0f2ed;
-
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-
-  transition:
-    border-color 0.18s ease,
-    background 0.18s ease;
+  gap: 7px;
+  padding: 9px 12px;
+  background: rgba(0, 0, 0, 0.46);
+  border:
+    1px solid rgba(175, 180, 173, 0.3);
 }
 
-.report-control:hover {
-  border-color: rgba(210, 215, 208, 0.62);
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(10, 12, 12, 0.84),
-      rgba(4, 5, 5, 0.74)
-    );
-}
-
-.time-control {
-  gap: 14px;
-}
-
-.control-icon {
-  color: #d43f32;
-  font-size: 22px;
-}
-
-.control-time {
-  color: #f2f3ef;
-  font-size: 22px;
+.month-picker span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #858b85;
+  font-size: 9px;
   font-weight: 900;
-  line-height: 1.05;
+  letter-spacing: 1px;
 }
 
-.control-date {
-  margin-top: 4px;
-
-  color: #b9bdb7;
-  font-size: 14px;
+.month-picker input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border:
+    1px solid rgba(216, 64, 52, 0.55);
+  background: #080b0b;
+  color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  outline: none;
+  color-scheme: dark;
 }
 
-.control-main {
-  color: #f0f2ed;
-  font-size: 20px;
+/* =========================================
+   PERIOD BUTTONS
+========================================= */
+
+.period-buttons {
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.period-button {
+  min-height: 67px;
+  padding: 8px;
+  cursor: pointer;
+  border:
+    1px solid rgba(175, 180, 173, 0.35);
+  background: rgba(0, 0, 0, 0.48);
+  color: #9da29d;
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.7px;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
-.period-control {
-  padding-right: 42px;
+.period-button:hover {
+  border-color: #d84034;
+  color: #ffffff;
 }
 
-.period-arrow {
-  position: absolute;
-  right: 18px;
-
-  color: #a5aaa4;
-  font-size: 12px;
+.period-button.active {
+  border-color: #d84034;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(216, 64, 52, 0.9),
+      rgba(130, 25, 20, 0.88)
+    );
+  color: #ffffff;
+  box-shadow:
+    0 0 18px rgba(216, 64, 52, 0.18);
 }
 
-.report-control::before {
-  content: "";
-
-  position: absolute;
-  top: -1px;
-  left: -1px;
-
-  width: 18px;
-  height: 18px;
-
-  border-top: 1px solid #b7352b;
-  border-left: 1px solid #b7352b;
-}
-
-.report-control::after {
-  content: "";
-
-  position: absolute;
-  right: -1px;
-  bottom: -1px;
-
-  width: 18px;
-  height: 18px;
-
-  border-right: 1px solid #b7352b;
-  border-bottom: 1px solid #b7352b;
-}
-
-@media (max-width: 1450px) {
-  .report-title-white,
-  .report-title-orange {
-    font-size: 36px;
+@media (max-width: 1350px) {
+  .report-header {
+    grid-template-columns:
+      330px
+      minmax(0, 1fr);
   }
 
   .report-controls {
     grid-template-columns:
-      1fr
-      1fr
-      1.1fr;
+      150px
+      190px
+      minmax(320px, 1fr);
   }
 
-  .control-time {
-    font-size: 19px;
-  }
-
-  .control-main {
-    font-size: 18px;
+  .period-button {
+    font-size: 10px;
   }
 }
