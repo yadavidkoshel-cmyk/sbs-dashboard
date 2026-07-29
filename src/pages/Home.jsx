@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import Header from "../components/Header";
 import Tables from "../components/Tables";
+
 import {
   getReportData,
   formatShortDate,
@@ -9,31 +10,10 @@ import {
 
 import "../styles/Home.css";
 
-function StatPart({ value, label }) {
-  return (
-    <div className="stat-part">
-      <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
-    </div>
-  );
-}
+const EMPTY_REPORT = {
+  reportDate: null,
 
-function Home() {
-  const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadReport() {
-      const data = await getReportData("today");
-
-      setReport(data);
-      setLoading(false);
-    }
-
-    loadReport();
-  }, []);
-
-  const totals = report?.totals || {
+  totals: {
     targetsHit: 0,
     targetsDestroyed: 0,
     strikeFlights: 0,
@@ -41,13 +21,122 @@ function Home() {
     personnel: 0,
     personnelDestroyed: 0,
     personnelWounded: 0,
-  };
+  },
 
-  const updates = report?.updates || [];
+  categories: [],
+  updates: [],
+};
+
+function Home() {
+  const [report, setReport] =
+    useState(EMPTY_REPORT);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    let componentIsActive = true;
+    let currentController = null;
+
+    async function loadReport() {
+      if (
+        document.visibilityState === "hidden"
+      ) {
+        return;
+      }
+
+      if (currentController) {
+        currentController.abort();
+      }
+
+      currentController =
+        new AbortController();
+
+      const freshReport =
+        await getReportData(
+          "today",
+          currentController.signal
+        );
+
+      if (
+        componentIsActive &&
+        freshReport
+      ) {
+        setReport(freshReport);
+      }
+
+      if (componentIsActive) {
+        setLoading(false);
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (
+        document.visibilityState === "visible"
+      ) {
+        loadReport();
+      }
+    }
+
+    loadReport();
+
+    const updateInterval = setInterval(
+      loadReport,
+      1000
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    return () => {
+      componentIsActive = false;
+
+      clearInterval(updateInterval);
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      if (currentController) {
+        currentController.abort();
+      }
+    };
+  }, []);
+
+  const totals =
+    report?.totals ||
+    EMPTY_REPORT.totals;
+
+  const updates = Array.isArray(
+    report?.updates
+  )
+    ? report.updates
+    : [];
+
+  const categories = Array.isArray(
+    report?.categories
+  )
+    ? report.categories
+    : [];
+
+  function showValue(value) {
+    if (loading) {
+      return "—";
+    }
+
+    const number = Number(value);
+
+    return Number.isFinite(number)
+      ? number
+      : 0;
+  }
 
   return (
     <main className="dashboard">
-
+      {/* Размытый фон по краям */}
       <video
         className="background-video-blur"
         autoPlay
@@ -55,9 +144,13 @@ function Home() {
         loop
         playsInline
       >
-        <source src="/background.mp4" type="video/mp4" />
+        <source
+          src="/background.mp4"
+          type="video/mp4"
+        />
       </video>
 
+      {/* Основное видео */}
       <video
         className="background-video-main"
         autoPlay
@@ -65,74 +158,125 @@ function Home() {
         loop
         playsInline
       >
-        <source src="/background.mp4" type="video/mp4" />
+        <source
+          src="/background.mp4"
+          type="video/mp4"
+        />
       </video>
 
       <div className="video-overlay" />
 
       <div className="dashboard-content">
-
         <Header />
 
+        {/* Верхние показатели */}
         <section className="stats-row">
+          <article className="stat-card">
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.targetsHit
+                )}
+              </div>
 
-          <div className="stat-card">
-            <StatPart
-              value={loading ? "..." : totals.targetsHit}
-              label="УРАЖЕНО ЦІЛЕЙ"
-            />
-
-            <div className="stat-divider" />
-
-            <StatPart
-              value={loading ? "..." : totals.targetsDestroyed}
-              label="В Т.Ч. ЗНИЩЕНО"
-            />
-          </div>
-
-          <div className="stat-card">
-            <StatPart
-              value={loading ? "..." : totals.strikeFlights}
-              label="УДАРНИХ ВИЛЬОТІВ"
-            />
+              <div className="stat-label">
+                УРАЖЕНО ЦІЛЕЙ
+              </div>
+            </div>
 
             <div className="stat-divider" />
 
-            <StatPart
-              value={loading ? "..." : totals.reconFlights}
-              label="РОЗВІД. ВИЛЬОТІВ"
-            />
-          </div>
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.targetsDestroyed
+                )}
+              </div>
 
-          <div className="stat-card">
-            <StatPart
-              value={loading ? "..." : totals.personnel}
-              label="ОС РОВ"
-            />
+              <div className="stat-label">
+                В Т.Ч. ЗНИЩЕНО
+              </div>
+            </div>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.strikeFlights
+                )}
+              </div>
+
+              <div className="stat-label">
+                УДАРНИХ ВИЛЬОТІВ
+              </div>
+            </div>
 
             <div className="stat-divider" />
 
-            <StatPart
-              value={loading ? "..." : totals.personnelDestroyed}
-              label="ЗНИЩЕНО"
-            />
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.reconFlights
+                )}
+              </div>
+
+              <div className="stat-label">
+                РОЗВІД. ВИЛЬОТІВ
+              </div>
+            </div>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.personnel
+                )}
+              </div>
+
+              <div className="stat-label">
+                ОС РОВ
+              </div>
+            </div>
 
             <div className="stat-divider" />
 
-            <StatPart
-              value={loading ? "..." : totals.personnelWounded}
-              label="ПОРАНЕНО"
-            />
-          </div>
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.personnelDestroyed
+                )}
+              </div>
 
+              <div className="stat-label">
+                ЗНИЩЕНО
+              </div>
+            </div>
+
+            <div className="stat-divider" />
+
+            <div className="stat-part">
+              <div className="stat-value">
+                {showValue(
+                  totals.personnelWounded
+                )}
+              </div>
+
+              <div className="stat-label">
+                ПОРАНЕНО
+              </div>
+            </div>
+          </article>
         </section>
 
+        {/* Обновления и подразделения */}
         <section className="dashboard-info-grid">
-
-          <div className="operations-box">
-
+          <article className="operations-box">
             <div className="section-heading">
-              <span className="section-number">01</span>
+              <span className="section-number">
+                01
+              </span>
 
               <div>
                 <div className="section-kicker">
@@ -146,83 +290,97 @@ function Home() {
             </div>
 
             <div className="operations-list">
-
               {loading && (
                 <div className="operation-item">
-                  <div className="operation-date">--</div>
+                  <div className="operation-date">
+                    --
+                  </div>
 
                   <div className="operation-line" />
 
                   <div className="operation-text">
                     Завантаження даних...
                   </div>
-                </div>
-              )}
 
-              {!loading && updates.length === 0 && (
-                <div className="operation-item">
-                  <div className="operation-date">--</div>
-
-                  <div className="operation-line" />
-
-                  <div className="operation-text">
-                    Оновлень поки немає
-                  </div>
+                  <div />
                 </div>
               )}
 
               {!loading &&
-                updates.map((item, index) => (
-                  <div
-                    className="operation-item"
-                    key={`${item.date}-${item.title}-${index}`}
-                  >
+                updates.length === 0 && (
+                  <div className="operation-item">
                     <div className="operation-date">
-                      {formatShortDate(item.date)}
+                      --
                     </div>
 
                     <div className="operation-line" />
 
                     <div className="operation-text">
-                      {item.title}
-
-                      {item.description && (
-                        <div className="operation-description">
-                          {item.description}
-                        </div>
-                      )}
+                      Оновлень поки немає
                     </div>
 
-                    {item.isNew && (
-                      <span className="operation-status">
-                        NEW
-                      </span>
-                    )}
+                    <div />
                   </div>
-                ))}
+                )}
 
+              {!loading &&
+                updates.map(
+                  (update, index) => (
+                    <div
+                      className="operation-item"
+                      key={`${update.date}-${update.title}-${index}`}
+                    >
+                      <div className="operation-date">
+                        {formatShortDate(
+                          update.date
+                        )}
+                      </div>
+
+                      <div className="operation-line" />
+
+                      <div className="operation-text">
+                        <div>
+                          {update.title}
+                        </div>
+
+                        {update.description && (
+                          <div className="operation-description">
+                            {
+                              update.description
+                            }
+                          </div>
+                        )}
+                      </div>
+
+                      {update.isNew ? (
+                        <div className="operation-status">
+                          NEW
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                  )
+                )}
             </div>
+          </article>
 
-          </div>
-
-          <div className="units-box">
-
-            <div className="section-heading compact-heading">
-              <span className="section-number">02</span>
+          <aside className="units-box">
+            <div className="section-heading">
+              <span className="section-number">
+                02
+              </span>
 
               <div>
                 <div className="section-kicker">
                   UNITS
                 </div>
 
-                <h2>
-                  ПІДРОЗДІЛИ
-                </h2>
+                <h2>ПІДРОЗДІЛИ</h2>
               </div>
             </div>
 
             <div className="unit-card">
-
               <div className="unit-logo-placeholder">
                 6
               </div>
@@ -232,19 +390,15 @@ function Home() {
                   ПІДРОЗДІЛ
                 </span>
 
-                <strong>
-                  6ББпАК
-                </strong>
+                <strong>6ББпАК</strong>
               </div>
 
               <div className="unit-indicator">
                 ACTIVE
               </div>
-
             </div>
 
             <div className="unit-card">
-
               <div className="unit-logo-placeholder">
                 R
               </div>
@@ -254,25 +408,19 @@ function Home() {
                   ПІДРОЗДІЛ
                 </span>
 
-                <strong>
-                  RAROG
-                </strong>
+                <strong>RAROG</strong>
               </div>
 
               <div className="unit-indicator">
                 ACTIVE
               </div>
-
             </div>
-
-          </div>
-
+          </aside>
         </section>
 
-       <Tables categories={report?.categories || []} />
-
+        {/* Нижние таблицы */}
+        <Tables categories={categories} />
       </div>
-
     </main>
   );
 }

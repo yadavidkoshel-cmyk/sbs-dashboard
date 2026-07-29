@@ -1,38 +1,43 @@
 const API_URL = "/api/report";
 
-export async function getReportData(period = "today") {
+export async function getReportData(
+  period = "today",
+  signal
+) {
   try {
-    const response = await fetch(`${API_URL}?period=${period}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_URL}?period=${period}&t=${Date.now()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        credentials: "same-origin",
+        signal,
+
+        headers: {
+          Accept: "application/json",
+          "Cache-Control": "no-cache",
+        },
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status}`);
+      throw new Error(
+        `HTTP error: ${response.status}`
+      );
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Помилка завантаження звіту:", error);
+    if (error?.name === "AbortError") {
+      return null;
+    }
 
-    return {
-      period,
-      totals: {
-        targetsHit: 0,
-        targetsDestroyed: 0,
-        strikeFlights: 0,
-        reconFlights: 0,
-        personnel: 0,
-        personnelDestroyed: 0,
-        personnelWounded: 0,
-      },
+    console.error(
+      "Помилка завантаження звіту:",
+      error
+    );
 
-      categories: [],
-
-      updates: [],
-    };
+    return null;
   }
 }
 
@@ -41,32 +46,42 @@ export function formatReportDate(value) {
     return "";
   }
 
-  const date = new Date(value);
+  const date = new Date(
+    `${value}T00:00:00`
+  );
 
   if (Number.isNaN(date.getTime())) {
-    return value;
+    return "";
   }
 
-  return date.toLocaleDateString("uk-UA", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  return new Intl.DateTimeFormat(
+    "uk-UA",
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  ).format(date);
 }
 
 export function formatShortDate(value) {
   if (!value) {
-    return "";
+    return "--";
   }
 
-  const date = new Date(value);
+  const date = new Date(
+    `${value}T00:00:00`
+  );
 
   if (Number.isNaN(date.getTime())) {
-    return value;
+    return "--";
   }
 
-  return date.toLocaleDateString("uk-UA", {
-    day: "2-digit",
-    month: "2-digit",
-  });
+  return new Intl.DateTimeFormat(
+    "uk-UA",
+    {
+      day: "2-digit",
+      month: "2-digit",
+    }
+  ).format(date);
 }
