@@ -7,9 +7,17 @@
   width: 100%;
   height: 42px;
   overflow: hidden;
-  background: rgba(3, 5, 5, 0.94);
-  border-top: 1px solid rgba(190, 55, 43, 0.45);
-  border-bottom: 1px solid rgba(180, 185, 180, 0.25);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(2, 4, 4, 0.98),
+      rgba(8, 12, 12, 0.95),
+      rgba(2, 4, 4, 0.98)
+    );
+  border-top:
+    1px solid rgba(216, 64, 52, 0.42);
+  border-bottom:
+    1px solid rgba(180, 185, 180, 0.22);
   z-index: 6;
 }
 
@@ -18,7 +26,8 @@
   height: 100%;
   display: flex;
   align-items: center;
-  animation: ticker-scroll 30s linear infinite;
+  animation:
+    ticker-scroll 30s linear infinite;
 }
 
 .ticker-item {
@@ -61,23 +70,28 @@
 .report-header {
   position: relative;
   z-index: 6;
-  min-height: 118px;
+  min-height: 122px;
+
   display: grid;
   grid-template-columns:
-    minmax(360px, 0.9fr)
-    minmax(720px, 1.6fr);
+    minmax(340px, 0.9fr)
+    minmax(760px, 1.65fr);
+
   gap: 18px;
   padding: 16px 20px;
+
   background:
     linear-gradient(
-      90deg,
-      rgba(5, 8, 8, 0.95),
-      rgba(7, 13, 14, 0.88)
+      105deg,
+      rgba(4, 7, 7, 0.97),
+      rgba(8, 15, 16, 0.91)
     );
+
   border-bottom:
-    1px solid rgba(180, 185, 180, 0.3);
+    1px solid rgba(180, 185, 180, 0.28);
+
   box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.38);
+    0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* =========================================
@@ -88,40 +102,65 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 17px;
 }
 
 .report-emblem {
-  width: 72px;
-  min-width: 72px;
-  height: 72px;
+  position: relative;
+
+  width: 74px;
+  min-width: 74px;
+  height: 74px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #d84034;
+
+  border:
+    1px solid rgba(216, 64, 52, 0.95);
+
   background:
     radial-gradient(
       circle,
-      rgba(216, 64, 52, 0.22),
-      rgba(0, 0, 0, 0.75)
+      rgba(216, 64, 52, 0.3),
+      rgba(10, 12, 12, 0.92)
     );
+
   color: #ffffff;
-  font-size: 34px;
+  font-size: 35px;
   font-weight: 900;
+
   box-shadow:
-    0 0 22px rgba(216, 64, 52, 0.18);
+    inset 0 0 22px
+      rgba(216, 64, 52, 0.16),
+    0 0 22px
+      rgba(216, 64, 52, 0.16);
+}
+
+.report-emblem::before {
+  content: "";
+
+  position: absolute;
+  inset: 5px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+}
+
+.report-brand-text {
+  min-width: 0;
 }
 
 .report-kicker {
   color: #d84034;
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 2.2px;
 }
 
 .report-title {
-  margin: 3px 0;
-  color: #f0f1ed;
+  margin: 4px 0;
+  color: #f2f3ef;
   font-size: 31px;
   font-weight: 900;
   line-height: 1;
@@ -129,7 +168,7 @@
 }
 
 .report-date {
-  color: #929892;
+  color: #888f89;
   font-size: 11px;
 }
 
@@ -143,82 +182,255 @@
 
 .report-controls {
   min-width: 0;
+
   display: grid;
   grid-template-columns:
-    170px
-    210px
-    minmax(350px, 1fr);
-  align-items: center;
-  gap: 12px;
-}
+    205px
+    205px
+    minmax(360px, 1fr);
 
-.clock-box {
-  min-height: 67px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  background: rgba(0, 0, 0, 0.46);
-  border:
-    1px solid rgba(175, 180, 173, 0.3);
-  color: #d84034;
-}
-
-.clock-box > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.clock-box strong {
-  color: #ffffff;
-  font-size: 17px;
-  letter-spacing: 1px;
-}
-
-.clock-box span {
-  color: #858b85;
-  font-size: 11px;
+  align-items: stretch;
+  gap: 10px;
 }
 
 /* =========================================
-   MONTH
+   CLOCK
+========================================= */
+
+.clock-box {
+  position: relative;
+  min-width: 0;
+  min-height: 82px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 12px 14px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(13, 20, 20, 0.95),
+      rgba(3, 6, 6, 0.92)
+    );
+
+  border:
+    1px solid rgba(165, 172, 166, 0.3);
+
+  box-shadow:
+    inset 0 0 20px
+      rgba(255, 255, 255, 0.015),
+    0 8px 20px
+      rgba(0, 0, 0, 0.32);
+}
+
+.clock-box::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  width: 60%;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #d84034,
+      transparent
+    );
+}
+
+.clock-icon {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid rgba(216, 64, 52, 0.62);
+
+  background:
+    rgba(216, 64, 52, 0.08);
+
+  color: #d84034;
+  font-size: 18px;
+
+  box-shadow:
+    0 0 16px
+      rgba(216, 64, 52, 0.12);
+}
+
+.clock-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clock-label {
+  color: #717871;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.clock-time {
+  color: #ffffff;
+  font-family:
+    "Courier New",
+    monospace;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.clock-date {
+  overflow: hidden;
+  color: #969d97;
+  font-size: 10px;
+  text-transform: capitalize;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* =========================================
+   MONTH SELECT
 ========================================= */
 
 .month-picker {
-  min-height: 67px;
+  position: relative;
+  min-width: 0;
+  min-height: 82px;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 7px;
-  padding: 9px 12px;
-  background: rgba(0, 0, 0, 0.46);
+  gap: 9px;
+
+  padding: 12px 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(13, 20, 20, 0.95),
+      rgba(3, 6, 6, 0.92)
+    );
+
   border:
-    1px solid rgba(175, 180, 173, 0.3);
+    1px solid rgba(165, 172, 166, 0.3);
+
+  box-shadow:
+    inset 0 0 20px
+      rgba(255, 255, 255, 0.015),
+    0 8px 20px
+      rgba(0, 0, 0, 0.32);
 }
 
-.month-picker span {
+.month-picker::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  width: 55%;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      270deg,
+      #d84034,
+      transparent
+    );
+}
+
+.month-picker-label {
   display: flex;
   align-items: center;
-  gap: 7px;
-  color: #858b85;
+  gap: 8px;
+
+  color: #858c86;
   font-size: 9px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
 
-.month-picker input {
+.month-picker-label svg {
+  color: #d84034;
+}
+
+.month-select-wrapper {
+  position: relative;
   width: 100%;
-  box-sizing: border-box;
-  padding: 7px 9px;
+}
+
+.month-select-wrapper select {
+  width: 100%;
+  min-height: 38px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  padding:
+    0 38px
+    0 13px;
+
+  cursor: pointer;
+
   border:
-    1px solid rgba(216, 64, 52, 0.55);
-  background: #080b0b;
+    1px solid rgba(216, 64, 52, 0.58);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(216, 64, 52, 0.08),
+      rgba(0, 0, 0, 0.42)
+    );
+
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+
   outline: none;
-  color-scheme: dark;
+}
+
+.month-select-wrapper select:hover,
+.month-select-wrapper select:focus {
+  border-color: #d84034;
+
+  box-shadow:
+    0 0 12px
+      rgba(216, 64, 52, 0.14);
+}
+
+.month-select-wrapper select option {
+  background: #0a0d0d;
+  color: #ffffff;
+}
+
+.month-chevron {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+
+  pointer-events: none;
+
+  transform:
+    translateY(-50%);
+
+  color: #d84034;
+  font-size: 11px;
 }
 
 /* =========================================
@@ -227,62 +439,118 @@
 
 .period-buttons {
   min-width: 0;
+
   display: grid;
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
+
   gap: 7px;
 }
 
 .period-button {
-  min-height: 67px;
+  position: relative;
+  min-width: 0;
+  min-height: 82px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
   padding: 8px;
+
   cursor: pointer;
+
   border:
-    1px solid rgba(175, 180, 173, 0.35);
-  background: rgba(0, 0, 0, 0.48);
-  color: #9da29d;
-  font-size: 11px;
+    1px solid rgba(165, 172, 166, 0.3);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(12, 18, 18, 0.94),
+      rgba(3, 5, 5, 0.93)
+    );
+
+  color: #999f99;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.7px;
+
   transition:
     background 0.18s ease,
     border-color 0.18s ease,
-    color 0.18s ease;
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .period-button:hover {
   border-color: #d84034;
   color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.period-number {
+  color: #666c67;
+  font-family:
+    "Courier New",
+    monospace;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .period-button.active {
   border-color: #d84034;
+
   background:
     linear-gradient(
-      135deg,
-      rgba(216, 64, 52, 0.9),
-      rgba(130, 25, 20, 0.88)
+      145deg,
+      rgba(203, 53, 42, 0.95),
+      rgba(110, 19, 15, 0.92)
     );
+
   color: #ffffff;
+
   box-shadow:
-    0 0 18px rgba(216, 64, 52, 0.18);
+    inset 0 0 20px
+      rgba(255, 255, 255, 0.05),
+    0 0 20px
+      rgba(216, 64, 52, 0.18);
 }
 
-@media (max-width: 1350px) {
+.period-button.active
+.period-number {
+  color: rgba(
+    255,
+    255,
+    255,
+    0.72
+  );
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1400px) {
   .report-header {
     grid-template-columns:
-      330px
+      320px
       minmax(0, 1fr);
   }
 
   .report-controls {
     grid-template-columns:
-      150px
       190px
-      minmax(320px, 1fr);
+      185px
+      minmax(330px, 1fr);
+  }
+
+  .clock-time {
+    font-size: 18px;
   }
 
   .period-button {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
