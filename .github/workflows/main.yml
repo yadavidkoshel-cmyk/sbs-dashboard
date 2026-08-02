@@ -2,7 +2,8 @@ name: Auto Publish Report
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: "0 */2 * * *"
+      timezone: "Europe/Kyiv"
   workflow_dispatch:
 
 jobs:
@@ -11,8 +12,29 @@ jobs:
 
     steps:
       - name: Publish report
+        env:
+          WEBAPP_URL: ${{ secrets.RAROG_WEBAPP_URL }}
+          REQUEST_BODY: ${{ secrets.RAROG_SCHEDULER_BODY }}
         run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '${{ secrets.RAROG_SCHEDULER_BODY }}' \
-            "${{ secrets.RAROG_WEBAPP_URL }}"
+          CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
+
+          if [[ -z "$CLEAN_URL" ]]; then
+            echo "Помилка: секрет RAROG_WEBAPP_URL порожній."
+            exit 1
+          fi
+
+          if [[ ! "$CLEAN_URL" =~ ^https://script\.google\.com/macros/s/.+/exec$ ]]; then
+            echo "Помилка: неправильний формат RAROG_WEBAPP_URL."
+            echo "Адреса має починатися з https://script.google.com/macros/s/"
+            echo "і закінчуватися на /exec"
+            exit 1
+          fi
+
+          curl \
+            --fail-with-body \
+            --show-error \
+            --location \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --data "$REQUEST_BODY" \
+            "$CLEAN_URL"
