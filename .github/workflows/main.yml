@@ -20,31 +20,32 @@ jobs:
           CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
 
           if [[ -z "$CLEAN_URL" ]]; then
-            echo "Помилка: секрет RAROG_WEBAPP_URL порожній."
+            echo "RAROG_WEBAPP_URL порожній."
             exit 1
           fi
 
           if [[ ! "$CLEAN_URL" =~ ^https://script\.google\.com/macros/s/.+/exec$ ]]; then
-            echo "Помилка: неправильний URL Apps Script."
+            echo "Неправильний URL Apps Script."
             exit 1
           fi
 
-          HTTP_CODE=$(curl \
-            --silent \
+          curl \
+            --location \
+            --fail-with-body \
             --show-error \
-            --output response.txt \
-            --write-out "%{http_code}" \
-            --request POST \
             --header "Content-Type: application/json" \
             --data "$REQUEST_BODY" \
-            "$CLEAN_URL")
+            --output response.txt \
+            "$CLEAN_URL"
 
-          echo "HTTP-код: $HTTP_CODE"
-          cat response.txt || true
+          echo "Відповідь Apps Script:"
+          cat response.txt
 
-          if [[ "$HTTP_CODE" -lt 200 || "$HTTP_CODE" -ge 400 ]]; then
-            echo "Помилка публікації."
+          if ! grep -q '"ok":true' response.txt; then
+            echo ""
+            echo "Apps Script не підтвердив успішну публікацію."
             exit 1
           fi
 
-          echo "Звіт успішно передано в Apps Script."
+          echo ""
+          echo "Дані успішно опубліковані."
