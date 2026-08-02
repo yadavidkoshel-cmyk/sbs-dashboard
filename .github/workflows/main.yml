@@ -15,6 +15,7 @@ jobs:
         env:
           WEBAPP_URL: ${{ secrets.RAROG_WEBAPP_URL }}
           REQUEST_BODY: ${{ secrets.RAROG_SCHEDULER_BODY }}
+
         run: |
           CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
 
@@ -24,17 +25,26 @@ jobs:
           fi
 
           if [[ ! "$CLEAN_URL" =~ ^https://script\.google\.com/macros/s/.+/exec$ ]]; then
-            echo "Помилка: неправильний формат RAROG_WEBAPP_URL."
-            echo "Адреса має починатися з https://script.google.com/macros/s/"
-            echo "і закінчуватися на /exec"
+            echo "Помилка: неправильний URL Apps Script."
             exit 1
           fi
 
-          curl \
-            --fail-with-body \
+          HTTP_CODE=$(curl \
+            --silent \
             --show-error \
-            --location \
+            --output response.txt \
+            --write-out "%{http_code}" \
             --request POST \
             --header "Content-Type: application/json" \
             --data "$REQUEST_BODY" \
-            "$CLEAN_URL"
+            "$CLEAN_URL")
+
+          echo "HTTP-код: $HTTP_CODE"
+          cat response.txt || true
+
+          if [[ "$HTTP_CODE" -lt 200 || "$HTTP_CODE" -ge 400 ]]; then
+            echo "Помилка публікації."
+            exit 1
+          fi
+
+          echo "Звіт успішно передано в Apps Script."
