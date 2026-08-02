@@ -1,0 +1,51 @@
+name: RAROG New Day
+
+on:
+  schedule:
+    - cron: "5 0 * * *"
+      timezone: "Europe/Kyiv"
+  workflow_dispatch:
+
+jobs:
+  new-day:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start new day
+        env:
+          WEBAPP_URL: ${{ secrets.RAROG_WEBAPP_URL }}
+          REQUEST_BODY: ${{ secrets.RAROG_SCHEDULER_BODY }}
+        run: |
+          CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
+
+          if [[ -z "$CLEAN_URL" ]]; then
+            echo "Помилка: секрет RAROG_WEBAPP_URL порожній."
+            exit 1
+          fi
+
+          if [[ ! "$CLEAN_URL" =~ ^https://script\.google\.com/macros/s/.+/exec$ ]]; then
+            echo "Помилка: неправильний URL Apps Script."
+            exit 1
+          fi
+
+          NEW_DAY_BODY="$(printf '%s' "$REQUEST_BODY" | jq -c '. + {action:"newDay"}')"
+
+          HTTP_CODE=$(curl \
+            --silent \
+            --show-error \
+            --output response.txt \
+            --write-out "%{http_code}" \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --data "$NEW_DAY_BODY" \
+            "$CLEAN_URL")
+
+          echo "HTTP-код: $HTTP_CODE"
+          cat response.txt || true
+
+          if [[ "$HTTP_CODE" -lt 200 || "$HTTP_CODE" -ge 400 ]]; then
+            echo "Помилка запуску нової доби."
+            exit 1
+          fi
+
+          echo "Команду початку нової доби передано в Apps Script."
