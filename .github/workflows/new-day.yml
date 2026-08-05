@@ -14,12 +14,13 @@ jobs:
       - name: Start new day
         env:
           WEBAPP_URL: ${{ secrets.RAROG_WEBAPP_URL }}
-          REQUEST_BODY: ${{ secrets.RAROG_SCHEDULER_BODY }}
+          SECRET_BODY: ${{ secrets.RAROG_SCHEDULER_BODY }}
+
         run: |
           CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
 
           if [[ -z "$CLEAN_URL" ]]; then
-            echo "Помилка: секрет RAROG_WEBAPP_URL порожній."
+            echo "Помилка: RAROG_WEBAPP_URL порожній."
             exit 1
           fi
 
@@ -28,24 +29,31 @@ jobs:
             exit 1
           fi
 
-          NEW_DAY_BODY="$(printf '%s' "$REQUEST_BODY" | jq -c '. + {action:"newDay"}')"
+          REQUEST_BODY="$(printf '%s' "$SECRET_BODY" | jq -c '. + {action:"newDay"}')"
 
-          HTTP_CODE=$(curl \
+          curl \
+            --location \
+            --fail-with-body \
             --silent \
             --show-error \
-            --output response.txt \
-            --write-out "%{http_code}" \
-            --request POST \
             --header "Content-Type: application/json" \
-            --data "$NEW_DAY_BODY" \
-            "$CLEAN_URL")
+            --data "$REQUEST_BODY" \
+            --output response.txt \
+            "$CLEAN_URL"
 
-          echo "HTTP-код: $HTTP_CODE"
-          cat response.txt || true
+          echo "Відповідь Apps Script:"
+          cat response.txt
+          echo ""
 
-          if [[ "$HTTP_CODE" -lt 200 || "$HTTP_CODE" -ge 400 ]]; then
-            echo "Помилка запуску нової доби."
-            exit 1
+          if grep -q '"newDayStarted":true' response.txt; then
+            echo "Нову добу успішно розпочато."
+            exit 0
           fi
 
-          echo "Команду початку нової доби передано в Apps Script."
+          if grep -q '"reason":"already_started"' response.txt; then
+            echo "Нова доба вже була розпочата раніше."
+            exit 0
+          fi
+
+          echo "Apps Script не підтвердив початок нової доби."
+          exit 1
