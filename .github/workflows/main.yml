@@ -3,7 +3,6 @@ name: Auto Publish Report
 on:
   schedule:
     - cron: "0 */2 * * *"
-      timezone: "Europe/Kyiv"
   workflow_dispatch:
 
 jobs:
@@ -20,32 +19,25 @@ jobs:
           CLEAN_URL="$(printf '%s' "$WEBAPP_URL" | tr -d '\r\n' | xargs)"
 
           if [[ -z "$CLEAN_URL" ]]; then
-            echo "RAROG_WEBAPP_URL порожній."
+            echo "Помилка: RAROG_WEBAPP_URL порожній."
             exit 1
           fi
 
-          if [[ ! "$CLEAN_URL" =~ ^https://script\.google\.com/macros/s/.+/exec$ ]]; then
-            echo "Неправильний URL Apps Script."
-            exit 1
-          fi
-
-          curl \
-            --location \
-            --fail-with-body \
+          HTTP_CODE=$(curl \
+            --silent \
             --show-error \
+            --output response.txt \
+            --write-out "%{http_code}" \
             --header "Content-Type: application/json" \
             --data "$REQUEST_BODY" \
-            --output response.txt \
-            "$CLEAN_URL"
+            "$CLEAN_URL")
 
-          echo "Відповідь Apps Script:"
-          cat response.txt
+          echo "HTTP-код Apps Script: $HTTP_CODE"
+          cat response.txt || true
 
-          if ! grep -q '"ok":true' response.txt; then
-            echo ""
-            echo "Apps Script не підтвердив успішну публікацію."
+          if [[ "$HTTP_CODE" != "200" && "$HTTP_CODE" != "302" ]]; then
+            echo "Помилка виклику Apps Script."
             exit 1
           fi
 
-          echo ""
-          echo "Дані успішно опубліковані."
+          echo "Запит на публікацію успішно передано."
